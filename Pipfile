@@ -7,6 +7,7 @@ name = "pypi"
 django = "*"
 django-debug-toolbar = "*"
 pysqlite3-binary = "*"
+mysqlclient = "*"
 
 [dev-packages]
 
