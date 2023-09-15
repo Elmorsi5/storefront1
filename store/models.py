@@ -15,9 +15,9 @@ class Collection(models.Model):
 
 class Product(models.Model):
     title = models.CharField(max_length=255)
-    description = models.TextField()
     slug = models.SlugField()
-    price = models.DecimalField(max_digits=6, decimal_places=2)
+    description = models.TextField()
+    unit_price = models.DecimalField(max_digits=6, decimal_places=2)
     inventory = models.IntegerField()
     last_update = models.DateTimeField(auto_now=True)
     collection = models.ForeignKey(Collection, on_delete=models.PROTECT)
@@ -25,7 +25,7 @@ class Product(models.Model):
 
 
 class Customer(models.Model):
-    class MEMBERSHIP_CHOICES(models.TextChoices):
+    class MembershipChoices(models.TextChoices):
         BRONZE = "B", "Bronze"
         SILVER = "C", "Silver"
         GOLD = "F", "Gold"
@@ -37,22 +37,22 @@ class Customer(models.Model):
     birth_date = models.DateField(null=True)
     membership = models.CharField(
         max_length=1,
-        choices=MEMBERSHIP_CHOICES.choices,
-        default=MEMBERSHIP_CHOICES.BRONZE,
+        choices=MembershipChoices.choices,
+        default=MembershipChoices.BRONZE,
     )
 
 
 class Order(models.Model):
-    class PAYMENT_STATUS(models.TextChoices):
+    class PaymentStatus(models.TextChoices):
         PENDING = "P", "Pending"
         COMPLETE = "C", "Complete"
         FAILED = "F", "Failed"
 
     placed_at = models.DateTimeField(auto_now_add=True)
     payment_status = models.CharField(
-        max_length=1, choices=PAYMENT_STATUS.choices, default=PAYMENT_STATUS.PENDING
+        max_length=1, choices=PaymentStatus.choices, default=PaymentStatus.PENDING
     )
-    customer = models.ForeignKey("Customer", on_delete=models.PROTECT)
+    customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
 
 
 class Address(models.Model):
