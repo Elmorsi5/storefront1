@@ -50,6 +50,8 @@ class Customer(models.Model):
         choices=MembershipChoices.choices,
         default=MembershipChoices.BRONZE,
     )
+    def __str__(self) -> str:
+        return self.first_name
 
 
 class Order(models.Model):
