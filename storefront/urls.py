@@ -20,6 +20,8 @@ from django.urls import path, include
 
 admin.site.site_header = 'Storefront Admin'
 admin.site.index_title = 'Go Mohamed...'
+admin.site.site_title= 'Frontstore'
+
 
 
 urlpatterns = [
