@@ -11,8 +11,17 @@ from .models import Collection , Product,Customer
 
 @admin.register(Product)    # here we are saying that Productadmin is the AdminModel of the Product model - register func take the model to register and applay what in it's modeladmin
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['title','unit_price']
+    list_display = ['title','unit_price','inventory_status']
+    list_editable = ['unit_price']
+    ordering = ['title']
+    list_per_page = 10
 
+    @admin.display(ordering='inventory') # to order before applying the method
+    def inventory_status(self,product): # it call this method over every object and retrun it's value in each iteration.
+        if product.inventory<10:
+            return 'Low'
+        return 'Ok'
+    
 @admin.register(Collection)
 class CollectionAdmin(admin.ModelAdmin):
     list_display = ['title']
@@ -23,3 +32,4 @@ class CustomerAdmin(admin.ModelAdmin):
     list_editable = ['membership']
     list_per_page = 10
     ordering = ['first_name','last_name']
+    
