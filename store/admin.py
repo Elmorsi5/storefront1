@@ -8,6 +8,7 @@ from .models import Collection , Product,Customer
 # admin.site.register(Product,ProductAdmin)
 
 # Register your models here.
+#test
 
 @admin.register(Product)    # here we are saying that Productadmin is the AdminModel of the Product model - register func take the model to register and applay what in it's modeladmin
 class ProductAdmin(admin.ModelAdmin):
