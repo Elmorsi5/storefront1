@@ -28,8 +28,13 @@ class CollectionAdmin(admin.ModelAdmin):
 
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ['first_name','last_name','membership']
+    list_display = ['first_name','last_name','membership','having_email']
     list_editable = ['membership']
     list_per_page = 10
     ordering = ['first_name','last_name']
-    
+
+    @admin.display(ordering='-email')
+    def having_email(self,customer):
+        if not customer.email:
+            return 'No'
+        return 'Ok'
