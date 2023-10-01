@@ -17,6 +17,21 @@ from django.utils.http import urlencode
 # Register your models here.
 
 
+# Create Custom Filter
+class InventoryFilter(admin.SimpleListFilter):
+    title = 'inventory'
+    parameter_name = 'inventory'
+
+    def lookups(self, request: Any, model_admin: Any) -> list[tuple[Any, str]]:
+        return [
+            ('<10','low') 
+        ]
+    
+    def queryset(self, request: Any, queryset: QuerySet[Any]) -> QuerySet[Any] | None:
+        if self.value() == '<10':
+            return queryset.filter(inventory__lt = 10) 
+            
+
 @admin.register(Product)    # here we are saying that Productadmin is the AdminModel of the Product model - register func take the model to register and applay what in it's modeladmin
 class ProductAdmin(admin.ModelAdmin):
     list_display = ['title','unit_price','collection_title','inventory_status']
@@ -24,7 +39,7 @@ class ProductAdmin(admin.ModelAdmin):
     ordering = ['collection','title']
     list_per_page = 10
     list_select_related = ['collection']
-
+    list_filter = ['collection','last_update',InventoryFilter]
     def collection_title(self,product):
         return product.collection.title
 
