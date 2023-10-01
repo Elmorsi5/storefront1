@@ -49,7 +49,7 @@ class CollectionAdmin(admin.ModelAdmin):
                 }))
         return format_html('<a href="{}">{}</a>',url,collectoin.products_count)
 
-    
+
     # for each collection object give me the count of the related procuts
     def get_queryset(self, request: HttpRequest) -> QuerySet[Any]:
         return super().get_queryset(request).annotate(
@@ -67,6 +67,12 @@ class CustomerAdmin(admin.ModelAdmin):
     #override the base queryset using annotate to return the number of orders for each customer
     @admin.display(ordering='orders_count')
     def orders_count(self,customer):
+        url = (reverse('admin:store_order_changelist')
+               + "?"
+               + urlencode({
+                   'customer__id':str(customer.id)
+               }))
+        return format_html('<a href = "{}">{}</a>',url,customer.orders_count)
         return customer.orders_count
     
     def get_queryset(self, request: HttpRequest) -> QuerySet[Any]:
