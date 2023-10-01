@@ -40,6 +40,5 @@ class CustomerAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['customer','placed_at','payment_status']
-    ordering = ['customer']
+    list_display = ['id','placed_at','payment_status','customer']
 
