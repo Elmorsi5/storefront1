@@ -30,6 +30,7 @@ class InventoryFilter(admin.SimpleListFilter):
     def queryset(self, request: Any, queryset: QuerySet[Any]) -> QuerySet[Any] | None:
         if self.value() == '<10':
             return queryset.filter(inventory__lt = 10) 
+       
         
 @admin.register(Product)    # here we are saying that Productadmin is the AdminModel of the Product model - register func take the model to register and applay what in it's modeladmin
 class ProductAdmin(admin.ModelAdmin):
@@ -59,7 +60,8 @@ class ProductAdmin(admin.ModelAdmin):
     def clear_inventory(self,request,queryset):
         updated_count = queryset.update(inventory = 0)
         self.message_user(request,f'{updated_count} products were successfully updated',messages.SUCCESS)
-        
+
+
 @admin.register(Collection)
 class CollectionAdmin(admin.ModelAdmin):
     list_display = ['id','title','products_count']
@@ -105,12 +107,14 @@ class CustomerAdmin(admin.ModelAdmin):
             orders_count = Count('order')
         )
 
-class OrderItemInline(admin.TabularInline):
+
+class OrderItemInline(admin.TabularInline):  #You can replace Tabular with stack
     autocomplete_fields = ['product']
     min_num = 1 # Must have at least one item per order
     max_num = 10  # Can't have more than 10 items per order
     model = OrderItem
     extra = 1 #Number of items in single bar- to change the default form 3 to 1
+
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):

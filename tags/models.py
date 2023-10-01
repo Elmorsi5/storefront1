@@ -3,13 +3,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 
 
-class Tag(models.Model):
+class Tag(models.Model): #It refers to the tag itself
     tag = models.CharField(max_length=255)
 
 
 #This enable us to use it (generic) with any project in the future because it'n not related to other projects
 
-class TaggedItem(models.Model):
+class TaggedItem(models.Model):#it refers to the item that we will use the Tag to refer to it
+    #What tag applied to what object
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
