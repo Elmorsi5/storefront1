@@ -33,6 +33,10 @@ class InventoryFilter(admin.SimpleListFilter):
         
 @admin.register(Product)    # here we are saying that Productadmin is the AdminModel of the Product model - register func take the model to register and applay what in it's modeladmin
 class ProductAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['collection']  # use it with the droplist to override the bad effect of having huge number of choices
+    prepopulated_fields ={
+        'slug':['title']
+    }
     actions = ["clear_inventory"]
     list_display = ['title','unit_price','collection_title','inventory_status']
     list_editable = ['unit_price']
@@ -50,6 +54,7 @@ class ProductAdmin(admin.ModelAdmin):
             return 'Low'
         return 'Ok'
     
+    # Create Custom Action
     def clear_inventory(self,request,queryset):
         updated_count = queryset.update(inventory = 0)
         self.message_user(request,f'{updated_count} products were successfully updated',messages.SUCCESS)
@@ -57,6 +62,7 @@ class ProductAdmin(admin.ModelAdmin):
 @admin.register(Collection)
 class CollectionAdmin(admin.ModelAdmin):
     list_display = ['id','title','products_count']
+    search_fields = ['title'] # which field to use when we search for a collection
 
     @admin.display(ordering='products_count')
     def products_count(self,collectoin):
@@ -101,7 +107,9 @@ class CustomerAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['customer']
     list_display = ['id','placed_at','payment_status','customer']
+
 
 
 
