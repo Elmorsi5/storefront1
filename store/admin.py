@@ -38,7 +38,7 @@ class CollectionAdmin(admin.ModelAdmin):
     @admin.display(ordering='products_count')
     def products_count(self,collectoin):
         return collectoin.products_count
-
+    # for each collection object give me the count of the related procuts
     def get_queryset(self, request: HttpRequest) -> QuerySet[Any]:
         return super().get_queryset(request).annotate(
             products_count = Count('product')
@@ -48,11 +48,25 @@ class CollectionAdmin(admin.ModelAdmin):
 
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ['first_name','last_name','membership']
+    list_display = ['first_name','last_name','membership','orders_count']
     list_editable = ['membership']
     list_per_page = 10
     ordering = ['first_name','last_name']
 
-@admin.register(Order)
-class OrderAdmin(admin.ModelAdmin):
-    list_display = ['id','placed_at','payment_status','customer']
+    @admin.register(Order)
+    class OrderAdmin(admin.ModelAdmin):
+        list_display = ['id','placed_at','payment_status','customer']
+    
+    #override the base queryset using annotate to return the number of orders for each customer
+    @admin.display(ordering='orders_count')
+    def orders_count(self,customer):
+        return customer.orders_count
+    
+    def get_queryset(self, request: HttpRequest) -> QuerySet[Any]:
+        return super().get_queryset(request).annotate(
+            orders_count = Count('order')
+        )
+
+
+
+
