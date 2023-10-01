@@ -4,7 +4,7 @@ from django.contrib import admin, messages
 from django.db.models.query import QuerySet
 from django.http.request import HttpRequest
 from django.urls import reverse
-from .models import Collection,Product,Customer,Order
+from .models import Collection,Product,Customer,Order,OrderItem
 from django.db.models import Count
 from django.utils.html import format_html
 from django.utils.http import urlencode
@@ -33,6 +33,7 @@ class InventoryFilter(admin.SimpleListFilter):
         
 @admin.register(Product)    # here we are saying that Productadmin is the AdminModel of the Product model - register func take the model to register and applay what in it's modeladmin
 class ProductAdmin(admin.ModelAdmin):
+    search_fields = ['title']
     autocomplete_fields = ['collection']  # use it with the droplist to override the bad effect of having huge number of choices
     prepopulated_fields ={
         'slug':['title']
@@ -104,10 +105,17 @@ class CustomerAdmin(admin.ModelAdmin):
             orders_count = Count('order')
         )
 
+class OrderItemInline(admin.TabularInline):
+    autocomplete_fields = ['product']
+    min_num = 1 # Must have at least one item per order
+    max_num = 10  # Can't have more than 10 items per order
+    model = OrderItem
+    extra = 1 #Number of items in single bar- to change the default form 3 to 1
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     autocomplete_fields = ['customer']
+    inlines = [OrderItemInline]
     list_display = ['id','placed_at','payment_status','customer']
 
 
