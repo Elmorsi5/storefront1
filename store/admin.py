@@ -1,6 +1,10 @@
 # here we create the customization of each appliatoin panel in the Admin Site App
+from typing import Any
 from django.contrib import admin
+from django.db.models.query import QuerySet
+from django.http.request import HttpRequest
 from .models import Collection,Product,Customer,Order
+from django.db.models import Count
 
 # The original way to add model in the admin site and then applay it's customization which in it's ModelAdmin
 # class ProductAdmin(admin.ModelAdmin):
@@ -29,7 +33,18 @@ class ProductAdmin(admin.ModelAdmin):
     
 @admin.register(Collection)
 class CollectionAdmin(admin.ModelAdmin):
-    list_display = ['title']
+    list_display = ['title','products_count']
+
+    @admin.display(ordering='products_count')
+    def products_count(self,collectoin):
+        return collectoin.products_count
+
+    def get_queryset(self, request: HttpRequest) -> QuerySet[Any]:
+        return super().get_queryset(request).annotate(
+            products_count = Count('product')
+        )
+
+
 
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
@@ -41,4 +56,3 @@ class CustomerAdmin(admin.ModelAdmin):
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ['id','placed_at','payment_status','customer']
-
