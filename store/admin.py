@@ -1,6 +1,6 @@
 # here we create the customization of each appliatoin panel in the Admin Site App
 from typing import Any
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.db.models.query import QuerySet
 from django.http.request import HttpRequest
 from django.urls import reverse
@@ -17,7 +17,7 @@ from django.utils.http import urlencode
 # Register your models here.
 
 
-# Create Custom Filter
+# Custom Filters
 class InventoryFilter(admin.SimpleListFilter):
     title = 'inventory'
     parameter_name = 'inventory'
@@ -30,10 +30,10 @@ class InventoryFilter(admin.SimpleListFilter):
     def queryset(self, request: Any, queryset: QuerySet[Any]) -> QuerySet[Any] | None:
         if self.value() == '<10':
             return queryset.filter(inventory__lt = 10) 
-            
-
+        
 @admin.register(Product)    # here we are saying that Productadmin is the AdminModel of the Product model - register func take the model to register and applay what in it's modeladmin
 class ProductAdmin(admin.ModelAdmin):
+    actions = ["clear_inventory"]
     list_display = ['title','unit_price','collection_title','inventory_status']
     list_editable = ['unit_price']
     ordering = ['collection','title']
@@ -50,7 +50,10 @@ class ProductAdmin(admin.ModelAdmin):
             return 'Low'
         return 'Ok'
     
-
+    def clear_inventory(self,request,queryset):
+        updated_count = queryset.update(inventory = 0)
+        self.message_user(request,f'{updated_count} products were successfully updated',messages.SUCCESS)
+        
 @admin.register(Collection)
 class CollectionAdmin(admin.ModelAdmin):
     list_display = ['id','title','products_count']
