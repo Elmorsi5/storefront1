@@ -1,6 +1,6 @@
 # here we create the customization of each appliatoin panel in the Admin Site App
 from django.contrib import admin
-from .models import Collection , Product,Customer
+from .models import Collection,Product,Customer,Order
 
 # The original way to add model in the admin site and then applay it's customization which in it's ModelAdmin
 # class ProductAdmin(admin.ModelAdmin):
@@ -32,4 +32,9 @@ class CustomerAdmin(admin.ModelAdmin):
     list_editable = ['membership']
     list_per_page = 10
     ordering = ['first_name','last_name']
-    
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ['customer','placed_at','payment_status']
+    ordering = ['customer']
+
