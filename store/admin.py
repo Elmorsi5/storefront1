@@ -11,11 +11,16 @@ from .models import Collection,Product,Customer,Order
 
 @admin.register(Product)    # here we are saying that Productadmin is the AdminModel of the Product model - register func take the model to register and applay what in it's modeladmin
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['title','unit_price','inventory_status']
+    list_display = ['title','unit_price','collection_title','inventory_status']
     list_editable = ['unit_price']
-    ordering = ['title']
+    ordering = ['collection','title']
     list_per_page = 10
+    list_select_related = ['collection']
 
+    def collection_title(self,product):
+        return product.collection.title
+
+    # Adding computed columns
     @admin.display(ordering='inventory') # to order before applying the method
     def inventory_status(self,product): # it call this method over every object and retrun it's value in each iteration.
         if product.inventory<10:
