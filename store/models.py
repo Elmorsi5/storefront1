@@ -1,4 +1,7 @@
 from django.db import models
+from django.core.validators import MinValueValidator,MaxValueValidator
+
+# When interacting with models differ between what is applied to the database- need new migration - and what applay to the admin interface only - non need to migrate -
 
 
 class Promotion(models.Model):
@@ -21,12 +24,15 @@ class Collection(models.Model):
 class Product(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField()
-    description = models.TextField()
-    unit_price = models.DecimalField(max_digits=6, decimal_places=2)
-    inventory = models.IntegerField()
+    description = models.TextField(null=True,blank=True) # null: to make it accept null in database level, blank: make it accept null in admin interface
+    unit_price = models.DecimalField(max_digits=6,
+                                      decimal_places=2,
+                                      validators=[MinValueValidator(1)]
+                                      )
+    inventory = models.IntegerField(validators=[MinValueValidator(0),MaxValueValidator(1000)])
     last_update = models.DateTimeField(auto_now=True)
     collection = models.ForeignKey(Collection, on_delete=models.PROTECT)
-    promotions = models.ManyToManyField(Promotion)
+    promotions = models.ManyToManyField(Promotion,blank=True)
 
     def __str__(self) -> str:
         return f"{self.title}"
