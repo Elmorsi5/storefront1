@@ -63,6 +63,7 @@ class CustomerAdmin(admin.ModelAdmin):
     list_editable = ['membership']
     list_per_page = 10
     ordering = ['first_name','last_name']
+    search_fields = ['first_name__istartswith','last_name__istartswith']
 
     #override the base queryset using annotate to return the number of orders for each customer
     @admin.display(ordering='orders_count')
@@ -73,7 +74,6 @@ class CustomerAdmin(admin.ModelAdmin):
                    'customer__id':str(customer.id)
                }))
         return format_html('<a href = "{}">{}</a>',url,customer.orders_count)
-        return customer.orders_count
     
     def get_queryset(self, request: HttpRequest) -> QuerySet[Any]:
         return super().get_queryset(request).annotate(
