@@ -38,7 +38,16 @@ def create_collection(request):
     collection.save()
 
 def update_collection(request):
+    #best practice is to read the object then update it
     collection = Collection.objects.get(pk=1)
     collection.title = "Videos"
     collection.save()
     #collection.objects.filter(pk=1).update(title = 'videos)
+
+def delete_collection(request):
+    #best practice is to read the object then delete it
+    collection = Collection.objects.get(pk=1)
+    collection.delete()
+    #collection.objects.filter(pk=1).delete()
+    #collection.objects.filter(id__gt = 5).delete()
+
