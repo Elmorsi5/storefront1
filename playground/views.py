@@ -63,5 +63,10 @@ def create_cart(request):
 def update_cart(request):
     item = CartItem.objects.get(id=1)
     item.quantity = 2
+
+def remove_cart(request):
+    cart = Cart.objects.get(pk=1)
+    cart.delete()
     
+
 
