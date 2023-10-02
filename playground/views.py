@@ -1,3 +1,6 @@
+from django.contrib.contenttypes.models import ContentType
+from store.models import Product
+from tags.models import TaggedItem
 from django.shortcuts import render
 from django.http import HttpResponse
 from store.models import Customer,Product,OrderItem,Order,Collection
@@ -20,3 +23,15 @@ def say_hello(request):
 
 
     return render(request,'hello.html',{'customers':qs})
+    return True
+
+
+def get_tagged_item(request):
+    content_type = ContentType.objects.get_for_model(Product)
+    tagged_items = TaggedItem.objects\
+    .select_related('tag')\
+    .filter(
+        content_type = content_type,
+        object_id = 1
+                              )
+    return render(request,'get_tagged_item.html',{'items':tagged_items})

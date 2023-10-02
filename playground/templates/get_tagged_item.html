@@ -1,0 +1,19 @@
+<html>
+<head>
+    <style>
+        body {
+            background: var(--sidebar-bg);
+        }
+        </style>
+</head>
+
+<body>
+    <h1>Printing Taggeditem of the product</h1>
+    {% for item in items %}
+    <ul>
+        <li>The object id is {{item.object_id}}</li>
+    </ul>
+    {% endfor %}
+</body>
+
+</html>
