@@ -60,6 +60,8 @@ def create_cart(request):
     item1.quantity = 1
     item1.save()
 
-
-
+def update_cart(request):
+    item = CartItem.objects.get(id=1)
+    item.quantity = 2
+    
 
