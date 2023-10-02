@@ -29,3 +29,10 @@ def say_hello(request):
 def get_tagged_item(request):
     tagged_items = TaggedItem.tagged.get_tags_for(Product,1)
     return render(request,'get_tagged_item.html',{'items':tagged_items})    
+
+
+def create_collection(request):
+    collection = Collection()
+    collection.title = "Video Games"
+    collection.featured_product = Product(pk=1)
+    collection.save()
