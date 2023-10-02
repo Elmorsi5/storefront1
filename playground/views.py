@@ -27,11 +27,5 @@ def say_hello(request):
 
 
 def get_tagged_item(request):
-    content_type = ContentType.objects.get_for_model(Product)
-    tagged_items = TaggedItem.objects\
-    .select_related('tag')\
-    .filter(
-        content_type = content_type,
-        object_id = 1
-                              )
-    return render(request,'get_tagged_item.html',{'items':tagged_items})
+    tagged_items = TaggedItem.tagged.get_tags_for(Product,1)
+    return render(request,'get_tagged_item.html',{'items':tagged_items})    
