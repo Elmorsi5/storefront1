@@ -3,7 +3,7 @@ from store.models import Product
 from tags.models import TaggedItem
 from django.shortcuts import render
 from django.http import HttpResponse
-from store.models import Customer,Product,OrderItem,Order,Collection
+from store.models import Customer,Product,OrderItem,Order,Collection,Cart,CartItem
 from django.db.models import Q
 from django.db.models import Max,Value,Count 
 # Create your views here.
@@ -50,4 +50,16 @@ def delete_collection(request):
     collection.delete()
     #collection.objects.filter(pk=1).delete()
     #collection.objects.filter(id__gt = 5).delete()
+
+def create_cart(request):
+    cart = Cart()
+    cart.save()
+    item1 = CartItem()
+    item1.cart = cart
+    item1.product = Product(id=1)
+    item1.quantity = 1
+    item1.save()
+
+
+
 
