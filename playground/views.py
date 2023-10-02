@@ -34,5 +34,11 @@ def get_tagged_item(request):
 def create_collection(request):
     collection = Collection()
     collection.title = "Video Games"
-    collection.featured_product = Product(pk=1)
+    collection.featured_product = None
     collection.save()
+
+def update_collection(request):
+    collection = Collection.objects.get(pk=1)
+    collection.title = "Videos"
+    collection.save()
+    #collection.objects.filter(pk=1).update(title = 'videos)
