@@ -34,15 +34,15 @@ class InventoryFilter(admin.SimpleListFilter):
         
 @admin.register(Product)    # here we are saying that Productadmin is the AdminModel of the Product model - register func take the model to register and applay what in it's modeladmin
 class ProductAdmin(admin.ModelAdmin):
+    list_display = ['title','unit_price','collection_title','inventory_status']
     search_fields = ['title']
+    ordering = ['collection','title']
     autocomplete_fields = ['collection']  # use it with the droplist to override the bad effect of having huge number of choices
     prepopulated_fields ={
         'slug':['title']
     }
     actions = ["clear_inventory"]
-    list_display = ['title','unit_price','collection_title','inventory_status']
     list_editable = ['unit_price']
-    ordering = ['collection','title']
     list_per_page = 10
     list_select_related = ['collection']
     list_filter = ['collection','last_update',InventoryFilter]
