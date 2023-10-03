@@ -10,18 +10,11 @@ from .models import Collection,Product,Customer,Order,OrderItem,Cart,CartItem
 from django.db.models import Count
 from django.utils.html import format_html
 from django.utils.http import urlencode
-# from django.db.models import Value
-# from django.db.models.functions import Concat
-
-# The original way to add model in the admin site and then applay it's customization which in it's ModelAdmin
-# class ProductAdmin(admin.ModelAdmin):
-#     list_display = ['title']
-# admin.site.register(Product,ProductAdmin)
-
-# Register your models here.
+from django.db.models import Value
+from django.db.models.functions import Concat
 
 
-# Custom Filters
+# Custom Filters:
 class InventoryFilter(admin.SimpleListFilter):
     title = 'inventory'
     parameter_name = 'inventory'
@@ -34,7 +27,21 @@ class InventoryFilter(admin.SimpleListFilter):
     def queryset(self, request: Any, queryset: QuerySet[Any]) -> QuerySet[Any] | None:
         if self.value() == '<10':
             return queryset.filter(inventory__lt = 10) 
-       
+
+# class DateFilter(admin.SimpleListFilter):
+#     title = "Date"
+#     parameter_name = 'Date'
+
+#     def lookups(self, request: Any, model_admin: Any) -> list[tuple[Any, str]]:
+#         return [
+#             ('','today'),
+#             ('','last week'),
+#             ('','last month')
+#         ]
+
+#     def queryset(self, request: Any, queryset: QuerySet[Any]) -> QuerySet[Any] | None:
+#         if self.value() ==  
+
 # give the product tag inline:
 class TagInline(GenericTabularInline):
     model = TaggedItem
@@ -136,12 +143,13 @@ class OrderAdmin(admin.ModelAdmin):
     list_filter = ['payment_status']
     list_select_related = ['customer']
     search_fields = ['customer__first_name'] #with strings us
-
+    date_hierarchy = 'placed_at'
     
 
     def convert_pending(self,request,queryset):
        updated_count = queryset.update(payment_status = Order.PaymentStatus.PENDING)
        self.message_user(request,f'{updated_count} Order were successfully updated',messages.SUCCESS)
+    
 
 
 class CartItemInLine(admin.TabularInline):

@@ -2,3 +2,5 @@
 https://www.letscodemore.com/blog/categories/coding/django/
 
 
+#Books:
+- Django ORM Cookbook [how to do things using django ORM]
