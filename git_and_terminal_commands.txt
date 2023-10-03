@@ -1,0 +1,10 @@
+## Terminal ##
+
+# change admin user:
+python mange.py changepassword admin
+
+## git ##
+
+#empty commit:
+git commit -a --allow-empty-message -m 
+

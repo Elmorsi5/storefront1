@@ -1,9 +1,12 @@
 # here we create the customization of each appliatoin panel in the Admin Site App
 from typing import Any
 from django.contrib import admin, messages
+from django.contrib.contenttypes.admin import GenericTabularInline
 from django.db.models.query import QuerySet
 from django.http.request import HttpRequest
 from django.urls import reverse
+
+from tags.models import TaggedItem
 from .models import Collection,Product,Customer,Order,OrderItem
 from django.db.models import Count
 from django.utils.html import format_html
@@ -31,8 +34,14 @@ class InventoryFilter(admin.SimpleListFilter):
         if self.value() == '<10':
             return queryset.filter(inventory__lt = 10) 
        
-        
-@admin.register(Product)    # here we are saying that Productadmin is the AdminModel of the Product model - register func take the model to register and applay what in it's modeladmin
+# give the product tag inline:
+class TagInline(GenericTabularInline):
+    model = TaggedItem
+    autocomplete_fields = ['tag']
+    extra = 1
+    
+# here we are saying that Productadmin is the AdminModel of the Product model - register func take the model to register and applay what in it's modeladmin
+@admin.register(Product)    
 class ProductAdmin(admin.ModelAdmin):
     list_display = ['title','unit_price','collection_title','inventory_status']
     search_fields = ['title']
@@ -42,10 +51,12 @@ class ProductAdmin(admin.ModelAdmin):
         'slug':['title']
     }
     actions = ["clear_inventory"]
+    inlines = [TagInline]
     list_editable = ['unit_price']
     list_per_page = 10
     list_select_related = ['collection']
     list_filter = ['collection','last_update',InventoryFilter]
+
     def collection_title(self,product):
         return product.collection.title
 
@@ -107,14 +118,13 @@ class CustomerAdmin(admin.ModelAdmin):
             orders_count = Count('order')
         )
 
-
+# Assign products of order inline
 class OrderItemInline(admin.TabularInline):  #You can replace Tabular with stack
+    model = OrderItem
     autocomplete_fields = ['product']
     min_num = 1 # Must have at least one item per order
     max_num = 10  # Can't have more than 10 items per order
-    model = OrderItem
     extra = 1 #Number of items in single bar- to change the default form 3 to 1
-
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
