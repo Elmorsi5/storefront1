@@ -3,8 +3,9 @@ from store.models import Product
 from tags.models import TaggedItem
 from django.shortcuts import render
 from django.http import HttpResponse
-from store.models import Customer,Product,OrderItem,Order,Collection,Cart,CartItem
+from store.models import Customer,Product,OrderItem,Order,Collection,Cart,CartItem,Order
 from django.db.models import Q
+from django.db import transaction
 from django.db.models import Max,Value,Count 
 # Create your views here.
 def say_hello(request):
@@ -69,4 +70,16 @@ def remove_cart(request):
     cart.delete()
     
 
+def create_order(request):
+    #Transaction:
+    with transaction.atomic():
+        order = Order()
+        order.customer = Customer(pk=1)
+        order.save()
 
+        item = OrderItem()
+        item.order = order
+        item.product = Product(pk=1)
+        item.quantity = 5
+        item.unit_price = OrderItem.objects.get(id=2).unit_price
+        item.save()
