@@ -1,0 +1,4 @@
+# Blogs:
+https://www.letscodemore.com/blog/categories/coding/django/
+
+

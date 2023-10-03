@@ -14,7 +14,7 @@ def say_hello(request):
     # qs = Customer.objects.values() #return list of object instances
 
     # qs = Customer.objects.values_list('first_name') #return list of tubels
-    # qs = Customer.objects.values_list('first_name',flat=True) #return list of values 
+    # qs = Customer.objects.values_list('first_name',flat=True) #return list of tuble values only, not the whole tuple
 
     # qs = Customer.objects.annotate(last_order = Max("order"))
     # qs = Collection.objects.annotate(number_of_products = Count("product"))
