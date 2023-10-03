@@ -11,3 +11,6 @@ class TagAdmin(admin.ModelAdmin):
 @admin.register(TaggedItem)
 class TaggedIem(admin.ModelAdmin):
     list_display = ['tag','content_type','object_id']
+    search_fields = ['tag']
+    autocomplete_fields = ['tag']
+    list_filter = ['tag','content_type']

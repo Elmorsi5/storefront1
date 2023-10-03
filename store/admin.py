@@ -5,12 +5,13 @@ from django.contrib.contenttypes.admin import GenericTabularInline
 from django.db.models.query import QuerySet
 from django.http.request import HttpRequest
 from django.urls import reverse
-
 from tags.models import TaggedItem
 from .models import Collection,Product,Customer,Order,OrderItem,Cart,CartItem
 from django.db.models import Count
 from django.utils.html import format_html
 from django.utils.http import urlencode
+# from django.db.models import Value
+# from django.db.models.functions import Concat
 
 # The original way to add model in the admin site and then applay it's customization which in it's ModelAdmin
 # class ProductAdmin(admin.ModelAdmin):
@@ -131,6 +132,17 @@ class OrderAdmin(admin.ModelAdmin):
     autocomplete_fields = ['customer']
     inlines = [OrderItemInline]
     list_display = ['id','placed_at','payment_status','customer']
+    actions = ['convert_pending']
+    list_filter = ['payment_status']
+    list_select_related = ['customer']
+    search_fields = ['customer__first_name'] #with strings us
+
+    
+
+    def convert_pending(self,request,queryset):
+       updated_count = queryset.update(payment_status = Order.PaymentStatus.PENDING)
+       self.message_user(request,f'{updated_count} Order were successfully updated',messages.SUCCESS)
+
 
 class CartItemInLine(admin.TabularInline):
     model = CartItem
