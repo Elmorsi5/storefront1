@@ -12,6 +12,7 @@ from django.utils.html import format_html
 from django.utils.http import urlencode
 from django.db.models import Value
 from django.db.models.functions import Concat
+import datetime
 
 
 # Custom Filters:
@@ -28,19 +29,20 @@ class InventoryFilter(admin.SimpleListFilter):
         if self.value() == '<10':
             return queryset.filter(inventory__lt = 10) 
 
-# class DateFilter(admin.SimpleListFilter):
-#     title = "Date"
-#     parameter_name = 'Date'
+class DateFilter(admin.SimpleListFilter):
+    title = "Date"
+    parameter_name = 'Datee'
 
-#     def lookups(self, request: Any, model_admin: Any) -> list[tuple[Any, str]]:
-#         return [
-#             ('','today'),
-#             ('','last week'),
-#             ('','last month')
-#         ]
+    def lookups(self, request: Any, model_admin: Any) -> list[tuple[Any, str]]:
+        return [
+            (str(datetime.date.today()),'today'),
+            # ('','last week'),
+            # ('','last month')
+        ]
 
-#     def queryset(self, request: Any, queryset: QuerySet[Any]) -> QuerySet[Any] | None:
-#         if self.value() ==  
+    def queryset(self, request: Any, queryset: QuerySet[Any]) -> QuerySet[Any] | None:
+        if self.value() == str(datetime.date.today()):
+            return queryset.filter(placed_at__date = str(datetime.date.today()))
 
 # give the product tag inline:
 class TagInline(GenericTabularInline):
@@ -140,7 +142,7 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderItemInline]
     list_display = ['id','placed_at','payment_status','customer']
     actions = ['convert_pending']
-    list_filter = ['payment_status']
+    list_filter = ['payment_status',DateFilter]
     list_select_related = ['customer']
     search_fields = ['customer__first_name'] #with strings us
     date_hierarchy = 'placed_at'
