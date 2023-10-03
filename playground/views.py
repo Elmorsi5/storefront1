@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from store.models import Customer,Product,OrderItem,Order,Collection,Cart,CartItem,Order
 from django.db.models import Q
-from django.db import transaction
+from django.db import connection, transaction
 from django.db.models import Max,Value,Count 
 # Create your views here.
 def say_hello(request):
@@ -73,6 +73,7 @@ def remove_cart(request):
 def create_order(request):
     #Transaction:
     with transaction.atomic():
+        # order can't be done without having items in it.
         order = Order()
         order.customer = Customer(pk=1)
         order.save()
@@ -83,3 +84,14 @@ def create_order(request):
         item.quantity = 5
         item.unit_price = OrderItem.objects.get(id=2).unit_price
         item.save()
+
+# Writing queries using raw sql
+def raw_sql(request):
+    queryset = Product.objects.raw('SELECT * FROM store_product')
+    #another way using cursor method #Task: search the difference between cursor and raw sql
+    with connection.cursor() as cursor:
+        cursor.callproc('get_customers',[1,2,'a']) # to avoide writing raw sql inside python code directly
+
+    
+
+    return render(request,'test.html',{'items':list(queryset)})    
