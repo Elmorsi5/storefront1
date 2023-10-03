@@ -7,7 +7,7 @@ from django.http.request import HttpRequest
 from django.urls import reverse
 
 from tags.models import TaggedItem
-from .models import Collection,Product,Customer,Order,OrderItem
+from .models import Collection,Product,Customer,Order,OrderItem,Cart,CartItem
 from django.db.models import Count
 from django.utils.html import format_html
 from django.utils.http import urlencode
@@ -39,7 +39,7 @@ class TagInline(GenericTabularInline):
     model = TaggedItem
     autocomplete_fields = ['tag']
     extra = 1
-    
+
 # here we are saying that Productadmin is the AdminModel of the Product model - register func take the model to register and applay what in it's modeladmin
 @admin.register(Product)    
 class ProductAdmin(admin.ModelAdmin):
@@ -132,6 +132,15 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderItemInline]
     list_display = ['id','placed_at','payment_status','customer']
 
+class CartItemInLine(admin.TabularInline):
+    model = CartItem
+    autocomplete_fields = ['product']
+    extra = 1
+
+@admin.register(Cart)
+class CartAdmin(admin.ModelAdmin):
+    list_display = ['created_at']
+    inlines = [CartItemInLine]
 
 
 
