@@ -1,4 +1,3 @@
-# here we create the customization of each appliatoin panel in the Admin Site App
 from typing import Any
 from django.contrib import admin, messages
 from django.contrib.contenttypes.admin import GenericTabularInline
@@ -13,11 +12,11 @@ from django.utils.http import urlencode
 from django.db.models import Value
 from django.db.models.functions import Concat
 import datetime
-from django.utils import timezone
 
 
 
-# Custom Filters:
+#Custom Filters:-
+
 class InventoryFilter(admin.SimpleListFilter):
     title = 'inventory'
     parameter_name = 'inventory'
@@ -30,8 +29,9 @@ class InventoryFilter(admin.SimpleListFilter):
     def queryset(self, request: Any, queryset: QuerySet[Any]) -> QuerySet[Any] | None:
         if self.value() == '<10':
             return queryset.filter(inventory__lt = 10) 
-        
-# Custom Filter Based on Date
+
+
+#Custom Filter by [today,last_week,last_month]
 class DateFilter(admin.SimpleListFilter):
     title = "Date"
     parameter_name = 'Date'
@@ -57,19 +57,20 @@ class DateFilter(admin.SimpleListFilter):
                 return queryset.filter(placed_at__date__gte = filter_range)
 
 
-# give the product tag inline:
+#ModelInline: Give a tag to an [generic] tagged item inline:
 class TagInline(GenericTabularInline):
     model = TaggedItem
     autocomplete_fields = ['tag']
     extra = 1
 
-# here we are saying that Productadmin is the AdminModel of the Product model - register func take the model to register and applay what in it's modeladmin
+#Admin Panels:-
+
 @admin.register(Product)    
 class ProductAdmin(admin.ModelAdmin):
     list_display = ['title','unit_price','collection_title','inventory_status']
     search_fields = ['title']
     ordering = ['collection','title']
-    autocomplete_fields = ['collection']  # use it with the droplist to override the bad effect of having huge number of choices
+    autocomplete_fields = ['collection']  #Use it with the droplist to override the bad effect of having huge number of choices
     prepopulated_fields ={
         'slug':['title']
     }
@@ -80,12 +81,13 @@ class ProductAdmin(admin.ModelAdmin):
     list_select_related = ['collection']
     list_filter = ['collection','last_update',InventoryFilter]
 
+
     def collection_title(self,product):
         return product.collection.title
 
-    # Adding computed columns
-    @admin.display(ordering='inventory') # to order before applying the method
-    def inventory_status(self,product): # it call this method over every object and retrun it's value in each iteration.
+    #Adding computed columns:
+    @admin.display(ordering='inventory')
+    def inventory_status(self,product): #It call this method over every object and return opposite value
         if product.inventory<10:
             return 'Low'
         return 'Ok'
@@ -136,31 +138,33 @@ class CustomerAdmin(admin.ModelAdmin):
                }))
         return format_html('<a href = "{}">{}</a>',url,customer.orders_count)
     
+
     def get_queryset(self, request: HttpRequest) -> QuerySet[Any]:
         return super().get_queryset(request).annotate(
             orders_count = Count('order')
         )
 
-# Assign products of order inline
-class OrderItemInline(admin.TabularInline):  #You can replace Tabular with stack
+
+#Add products to order inline:
+class OrderItemInline(admin.TabularInline):  #Able to inherit from StackInline
     model = OrderItem
     autocomplete_fields = ['product']
-    min_num = 1 # Must have at least one item per order
-    max_num = 10  # Can't have more than 10 items per order
-    extra = 1 #Number of items in single bar- to change the default form 3 to 1
+    min_num = 1 #Must assign 1 order at least when creat an order
+    max_num = 10  #Can't assign more than 10 products when create an order
+    extra = 1 #Number of items in single bar - Default is 3
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     autocomplete_fields = ['customer']
-    inlines = [OrderItemInline]
     list_display = ['id','placed_at','payment_status','customer']
+    inlines = [OrderItemInline]
     actions = ['convert_pending']
     list_filter = ['payment_status',DateFilter]
     list_select_related = ['customer']
     search_fields = ['customer__first_name'] #with strings us
     date_hierarchy = 'placed_at'
     
-
+    #Custom Action:
     def convert_pending(self,request,queryset):
        updated_count = queryset.update(payment_status = Order.PaymentStatus.PENDING)
        self.message_user(request,f'{updated_count} Order were successfully updated',messages.SUCCESS)
