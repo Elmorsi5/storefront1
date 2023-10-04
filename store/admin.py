@@ -9,8 +9,6 @@ from .models import Collection,Product,Customer,Order,OrderItem,Cart,CartItem
 from django.db.models import Count
 from django.utils.html import format_html
 from django.utils.http import urlencode
-from django.db.models import Value
-from django.db.models.functions import Concat
 import datetime
 
 
