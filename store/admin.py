@@ -35,17 +35,17 @@ class InventoryFilter(admin.SimpleListFilter):
 class DateFilter(admin.SimpleListFilter):
     title = "Date"
     parameter_name = 'Date'
-    current_date = timezone.now()
-    current_date_for_list = str(datetime.date.today())
+    current_date = datetime.datetime.today()
+    current_date_str= str(datetime.date.today())
     yesterday = str((current_date - datetime.timedelta(hours=24)).date())
     last_week = str((current_date - datetime.timedelta(days=7)).date())
     last_month = str((current_date - datetime.timedelta(weeks= 4)).date())
 
-    filter_ranges = [current_date_for_list,yesterday,last_week,last_month]
+    filter_ranges = [current_date_str,yesterday,last_week,last_month]
 
     def lookups(self, request: Any, model_admin: Any) -> list[tuple[Any, str]]:
         return [
-            (self.current_date_for_list,'today'),
+            (self.current_date_str,'today'),
             (self.yesterday,'yesterday'),
             (self.last_week,'last week'),
             (self.last_month,'last month')
