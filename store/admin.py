@@ -13,6 +13,8 @@ from django.utils.http import urlencode
 from django.db.models import Value
 from django.db.models.functions import Concat
 import datetime
+from django.utils import timezone
+
 
 
 # Custom Filters:
@@ -28,21 +30,32 @@ class InventoryFilter(admin.SimpleListFilter):
     def queryset(self, request: Any, queryset: QuerySet[Any]) -> QuerySet[Any] | None:
         if self.value() == '<10':
             return queryset.filter(inventory__lt = 10) 
-
+        
+# Custom Filter Based on Date
 class DateFilter(admin.SimpleListFilter):
     title = "Date"
-    parameter_name = 'Datee'
+    parameter_name = 'Date'
+    current_date = timezone.now()
+    current_date_for_list = str(datetime.date.today())
+    yesterday = str((current_date - datetime.timedelta(hours=24)).date())
+    last_week = str((current_date - datetime.timedelta(days=7)).date())
+    last_month = str((current_date - datetime.timedelta(weeks= 4)).date())
+
+    filter_ranges = [current_date_for_list,yesterday,last_week,last_month]
 
     def lookups(self, request: Any, model_admin: Any) -> list[tuple[Any, str]]:
         return [
-            (str(datetime.date.today()),'today'),
-            # ('','last week'),
-            # ('','last month')
+            (self.current_date_for_list,'today'),
+            (self.yesterday,'yesterday'),
+            (self.last_week,'last week'),
+            (self.last_month,'last month')
         ]
 
     def queryset(self, request: Any, queryset: QuerySet[Any]) -> QuerySet[Any] | None:
-        if self.value() == str(datetime.date.today()):
-            return queryset.filter(placed_at__date = str(datetime.date.today()))
+        for filter_range in self.filter_ranges: 
+            if filter_range == self.value():
+                return queryset.filter(placed_at__date__gte = filter_range)
+
 
 # give the product tag inline:
 class TagInline(GenericTabularInline):

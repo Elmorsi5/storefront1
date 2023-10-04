@@ -9,9 +9,9 @@
 
 <body>
     <h1>Hello world</h1>
-    {% for customer in customers %}
+    {% for order in orders %}
     <ul>
-        <li>{{customer.first_name}} {{customer.last_name}} makes {{customer.total}} orders </li>
+        <li>{{order.id}} </li>
     </ul>
     {% endfor %}
 </body>

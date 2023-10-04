@@ -7,6 +7,8 @@ from store.models import Customer,Product,OrderItem,Order,Collection,Cart,CartIt
 from django.db.models import Q
 from django.db import connection, transaction
 from django.db.models import Max,Value,Count 
+import datetime
+from django.utils import timezone
 # Create your views here.
 def say_hello(request):
     # qs = Customer.objects.values_list('first_name','last_name')
@@ -19,12 +21,16 @@ def say_hello(request):
     # qs = Customer.objects.annotate(last_order = Max("order"))
     # qs = Collection.objects.annotate(number_of_products = Count("product"))
     # qs = Customer.objects.annotate(num_of_orders=Count("order")).filter(num_of_orders__gt = 5)
-    qs= Customer.objects.annotate(total = Count("order")).filter(~Q(total__gt = 0))
+    # qs= Customer.objects.annotate(total = Count("order")).filter(~Q(total__gt = 0))
     # qs= Customer.objects.annotate(toatal_number_of_products_in_orders = Count("order"))
+    current_date = datetime.date.today()
+    # future_date = current_date + datetime.timedelta(days=7)
+    qs_yesterday = Order.objects.filter(placed_at__date__gte=(timezone.now() - datetime.timedelta(days=7)).date())
+    # qs = Order.objects.filter(placed_at__range =)
 
+    # return render(request,'hello.html',{'customers':qs})
+    return render(request,'hello.html',{'orders':qs_yesterday})
 
-    return render(request,'hello.html',{'customers':qs})
-    return True
 
 
 def get_tagged_item(request):
