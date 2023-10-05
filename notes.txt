@@ -14,4 +14,12 @@
 2- what is the constrains for RESTful? 
 3- What is JSON? JavaScript Object Notation?
 4- in Http methods: what is the difference between PUT and PATCH?
-5 -
+
+#REST Framework:
+1- what happens when we decorate django view with api_view from rest Framework? - in the term of requeset object - 
+2- What is browsable api page?
+3- Is is better to use 404? or use constant?
+4- I API model is the same of Data object Model? N
+5- API is the interface of our application, the remote control buttons, object model is the inside implement of our application as it can be changed or updated
+6- API endpoint [remote buttons] difficult to be changedm but the entire process can be
+7- we have 4 ways to serialize a relationship: [primary key - String - Nested Object - Hyperlink]
