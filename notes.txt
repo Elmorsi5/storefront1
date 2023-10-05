@@ -1,3 +1,17 @@
 #Models:
 1- You should differ between what is applied to the database[need to make new migration]- and what applay to the admin site only[no need to migrate]
+2- When building a generic model, don't make it interact with you main models or apps directly [store_cutom]
 
+
+
+#DBMS:
+1-the DBMS we use is mysql
+2- DataGrip: workstation to make it easy to interact with mysql
+3- Full Picture: DataGrip->mysql->database
+
+#APIs:
+1- Is there a difference between RESTful APIs and REST Framework?
+2- what is the constrains for RESTful? 
+3- What is JSON? JavaScript Object Notation?
+4- in Http methods: what is the difference between PUT and PATCH?
+5 -
