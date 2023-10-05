@@ -3,8 +3,9 @@ from django.http import HttpResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import ProductSerializers, CollectionSerializers
-from .models import Product, Collection
+from .serializers import ProductSerializers, CollectionSerializers, CustomerSrializer
+from .models import Product, Collection, Customer
+from django.db.models import Count
 
 # Create your views here.
 
@@ -56,7 +57,7 @@ def product_detail(request, id):
 @api_view(["GET", "POST"])
 def collectoin_list(request):
     if request.method == "GET":
-        queryset = Collection.objects.select_related("featured_product")
+        queryset = Collection.objects.annotate(products_count=Count("products")).all()
         serializer = CollectionSerializers(queryset, many=True)
         return Response(serializer.data, status.HTTP_200_OK)
     elif request.method == "POST":
@@ -78,7 +79,7 @@ def collection_detail(request, id):
         serializer.save()
         return Response(serializer.data, status.HTTP_200_OK)
     elif request.method == "DELETE":
-        if collection.products.count() > 0:
+        if collection.products.count() > 0:  # type: ignore
             return Response(
                 {
                     "error": "There are products related to this collectio, you can not delete it"
@@ -88,3 +89,38 @@ def collection_detail(request, id):
         else:
             collection.delete()
             return Response(status.HTTP_404_NOT_FOUND)
+
+
+@api_view(["GET", "POST"])
+def customer_list(request):
+    if request.method == "GET":
+        queryset = Customer.objects.annotate(orders_count=Count("orders")).all()
+        serializer = CustomerSrializer(queryset, many=True)
+        return Response(serializer.data, status.HTTP_200_OK)
+    elif request.method == "POST":
+        serializer = CustomerSrializer(request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return (serializer.data, status.HTTP_201_CREATED)
+
+
+@api_view(["GET", "PUT", "DELETE"])
+def customer_detail(request, id):
+    customer = Customer.objects.annotate(orders_count = Count("orders")).get(pk = id)
+    if request.method == "GET":
+        serializer = CustomerSrializer(customer)
+        return Response(serializer.data, status.HTTP_200_OK)
+    elif request.method == "PUT":
+        serializer = CustomerSrializer(customer, request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return serializer.data
+    elif request.method == "DELETE":
+        if customer.orders.count() > 0:
+            return Response(
+                {"error": "can't delete this user as it have order in progress"},
+                status.HTTP_405_METHOD_NOT_ALLOWED,
+            )
+
+        customer.delete()
+        return Response(status.HTTP_204_NO_CONTENT)

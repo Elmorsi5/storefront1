@@ -14,7 +14,7 @@ def say_hello(request):
     # qs = Customer.objects.values_list('first_name','last_name')
     # qs = Customer.objects.values() #return list of dict
     # qs = Customer.objects.values() #return list of object instances
-
+    customer = Customer.objects.annotate(orders_counts = Count("orders")).get(id = 1)
     # qs = Customer.objects.values_list('first_name') #return list of tubels
     # qs = Customer.objects.values_list('first_name',flat=True) #return list of tuble values only, not the whole tuple
 
@@ -29,7 +29,7 @@ def say_hello(request):
     # qs = Order.objects.filter(placed_at__range =)
 
     # return render(request,'hello.html',{'customers':qs})
-    return render(request,'hello.html',{'orders':qs_yesterday})
+    return render(request,'hello.html',{'customer':customer})
 
 
 

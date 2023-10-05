@@ -77,7 +77,7 @@ class Order(models.Model):
     payment_status = models.CharField(
         max_length=1, choices=PaymentStatus.choices, default=PaymentStatus.PENDING
     )
-    customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
+    customer = models.ForeignKey(Customer, on_delete=models.PROTECT, related_name="orders")
 
 
 class Address(models.Model):
