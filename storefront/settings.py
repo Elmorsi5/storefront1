@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'store',
     'tags',
-    'likes'
+    'likes',
+    'store_custom'
 ]
 SITE_ID = 1
 MIDDLEWARE = [

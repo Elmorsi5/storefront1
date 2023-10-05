@@ -55,11 +55,6 @@ class DateFilter(admin.SimpleListFilter):
                 return queryset.filter(placed_at__date__gte = filter_range)
 
 
-#ModelInline: Give a tag to an [generic] tagged item inline:
-class TagInline(GenericTabularInline):
-    model = TaggedItem
-    autocomplete_fields = ['tag']
-    extra = 1
 
 #Admin Panels:-
 
@@ -73,7 +68,6 @@ class ProductAdmin(admin.ModelAdmin):
         'slug':['title']
     }
     actions = ["clear_inventory"]
-    inlines = [TagInline]
     list_editable = ['unit_price']
     list_per_page = 10
     list_select_related = ['collection']
