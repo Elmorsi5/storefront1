@@ -6,7 +6,12 @@ from store.models import Product,Collection
 class CollectionSerializers(serializers.ModelSerializer):
     class Meta:
         model = Collection
-        fields = ['id','title','featured_product']
+        fields = ['id','title','counts']
+
+    counts = serializers.SerializerMethodField(method_name="products_count")
+
+    def products_count(self,collection:Collection):
+        return collection.products.count()
 
 
 class ProductSerializers(serializers.ModelSerializer): #What field of product object to serialize = what field to include in the produced python dictionary?
