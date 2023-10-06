@@ -200,6 +200,36 @@ class ProductViewSet(ModelViewSet):
             )
         return super().destroy(request, *args, **kwargs)
 
+class CustomerViewSet(ModelViewSet):
+    class CustomerSrializer(serializers.ModelSerializer):
+        class Meta:
+            model = Customer
+            fields = ['first_name','last_name','email','phone','birth_date','membership']
+
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSrializer
+
+
+class OrderViewSet(ModelViewSet):
+    class OrderSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Order
+            fields = ['id','placed_at','payment_status','customer']
+        
+        def create(self, validated_data):
+            customer_id = self.context['customer_id']
+            return Review.objects.create(product_id = customer_id,**validated_data)
+    
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+
+    def get_queryset(self):
+        return Order.objects.filter(customer_id = self.kwargs['customer_pk'])
+    
+    def get_serializer_context(self):
+        return {'customer_id':self.kwargs['customer_pk']}
+
+
 # ----------------------------------------------------------------------------
 
 
