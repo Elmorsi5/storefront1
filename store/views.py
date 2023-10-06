@@ -69,7 +69,8 @@ def collectoin_list(request):
 
 @api_view(["GET", "PUT", "DELETE"])
 def collection_detail(request, id):
-    collection = get_object_or_404(Collection, pk=id)
+    queryset = Collection.objects.annotate(products_count = Count("products"))
+    collection = get_object_or_404(queryset,pk = id)
     if request.method == "GET":
         serializer = CollectionSerializers(collection)
         return Response(serializer.data, status.HTTP_200_OK)
@@ -106,7 +107,8 @@ def customer_list(request):
 
 @api_view(["GET", "PUT", "DELETE"])
 def customer_detail(request, id):
-    customer = Customer.objects.annotate(orders_count = Count("orders")).get(pk = id)
+    queryset = Customer.objects.annotate(orders_count = Count("orders"))
+    customer = get_object_or_404(queryset,pk = id)
     if request.method == "GET":
         serializer = CustomerSrializer(customer)
         return Response(serializer.data, status.HTTP_200_OK)
@@ -116,7 +118,7 @@ def customer_detail(request, id):
         serializer.save()
         return serializer.data
     elif request.method == "DELETE":
-        if customer.orders.count() > 0:
+        if customer.orders.count() > 0: # type: ignore
             return Response(
                 {"error": "can't delete this user as it have order in progress"},
                 status.HTTP_405_METHOD_NOT_ALLOWED,

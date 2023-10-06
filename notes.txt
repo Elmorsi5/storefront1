@@ -10,10 +10,10 @@
 3- Full Picture: DataGrip->mysql->database
 
 #APIs:
-1- Is there a difference between RESTful APIs and REST Framework?
-2- what is the constrains for RESTful? 
-3- What is JSON? JavaScript Object Notation?
-4- in Http methods: what is the difference between PUT and PATCH?
+1- Is there a difference between RESTful[Representaional State Transfer] APIs and REST Framework?constrains and rules - the real implementation
+2- what is the Charastictis for RESTful? Data Representaiona[JSON] - HTTP Methods - use URL to resource locator
+3- What is JSON? JavaScript Object Notation?it is how we represent object in java inside curly brackts 
+4- in Http methods: what is the difference between PUT and PATCH? Put udate all - Patch update specific fields
 
 #REST Framework:
 1- what happens when we decorate django view with api_view from rest Framework? - in the term of requeset object - 
