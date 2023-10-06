@@ -23,7 +23,7 @@ from django.db.models import Count
 #3-mixins - generic APIViews
 #4-Viewset
 
-#1-Using [Function Based View] [manually handle http methods and manually write the functionsto : [list- create - update - Delete] ]
+# 1- Using [Function Based View] [manually handle http methods and manually write the functionsto : [list- create - update - Delete] ]
 @api_view(["GET", "POST"])
 def customer_list(request):
     if request.method == "GET":
@@ -58,9 +58,10 @@ def customer_detail(request, id):
 
         customer.delete()
         return Response(status.HTTP_204_NO_CONTENT)
-#---------------------------------------------------
 
-#2- Using [Class APIView] Class [no more of (if conditions) to handle http methods ]
+# ----------------------------------------------------------------------------
+
+# 2-Using [Class APIView] Class [no more of (if conditions) to handle http methods ]
 class ProductList(APIView):
     def get(self, request):
         queryset = Product.objects.select_related("collection").all()
@@ -97,26 +98,11 @@ class ProductDetail(APIView):
         else:
             product.delete()
             return Response(status.HTTP_204_NO_CONTENT)
-# ---------------------------------------------------
 
-#Product ViewSet:
-class ProductViewSet(ModelViewSet):
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializers
-
-    def destroy(self, request, *args, **kwargs):
-        product = get_object_or_404(Product, pk=kwargs['pk'])
-        if self.product.orders.count() > 0:  # type: ignore
-            return Response(
-                {"error": "you can't delete it as you have purhsed it"},
-                status.HTTP_405_METHOD_NOT_ALLOWED,
-            )
-        return super().destroy(request, *args, **kwargs)
+# ----------------------------------------------------------------------------
 
 
-
-
-#3- Using [GenericAPIView] [built in function do work,only provide unique(queryset-serializer_class -lookup_field) and Customize built in function if need]
+# 3-Using [GenericAPIView] [built in function do work,only provide unique(queryset-serializer_class -lookup_field) and Customize built in function if need]
 class CollectionList(ListCreateAPIView):
     queryset = Collection.objects.annotate(products_count=Count("products")).all()
     serializer_class = CollectionSerializers
@@ -142,9 +128,11 @@ class CollectionDetail(RetrieveUpdateDestroyAPIView):
         else:
             collection.delete()
             return Response(status.HTTP_404_NOT_FOUND)
-#-----------------------------------------------------
 
-#4- Using [ViewSets] [do all in one and override what you want to edit]
+# ----------------------------------------------------------------------------
+
+
+# 4-Using [ViewSets] [do all in one and override what you want to edit]
 class CollectionViewSet(ModelViewSet):
     queryset = Collection.objects.annotate(products_count=Count("products")).all()
     serializer_class = CollectionSerializers
@@ -175,6 +163,22 @@ class ReviewViewSet(ModelViewSet):
 
     def get_serializer_context(self):
         return {'product_id':self.kwargs['product_pk']}
+
+
+class ProductViewSet(ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializers
+
+    def destroy(self, request, *args, **kwargs):
+        product = get_object_or_404(Product, pk=kwargs['pk'])
+        if self.product.orders.count() > 0:  # type: ignore
+            return Response(
+                {"error": "you can't delete it as you have purhsed it"},
+                status.HTTP_405_METHOD_NOT_ALLOWED,
+            )
+        return super().destroy(request, *args, **kwargs)
+
+# ----------------------------------------------------------------------------
 
 
 

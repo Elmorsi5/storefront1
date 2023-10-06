@@ -30,6 +30,6 @@ urlpatterns = [
     path('order/<int:id>',views.OrderDetail.as_view()),
     
     # ViewSets Router
-    path(r'',include(router.urls)),
+    path(r'',include(router.urls)),# router.urls map the viewsets that regiserin in:
     path(r'',include(products_router.urls)),
     ]
