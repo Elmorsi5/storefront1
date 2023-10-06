@@ -8,8 +8,7 @@ urlpatterns = [
     path('collection/<int:pk>',views.CollectionDetail.as_view()), #<int:id> called converter
     path('customers/',views.customer_list),
     path('customer/<int:id>',views.customer_detail),
-    path('orders/',views.order_list),
-    # path('order/<int:id>',views.order_detail),
-
+    path('orders/',views.OrderList.as_view()),
+    path('order/<int:id>',views.OrderDetail.as_view()),
 
     ]
