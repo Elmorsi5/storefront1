@@ -39,3 +39,11 @@ Stps to build an API:
 
 ##Deserialize:
 easy isa
+
+
+##Routers:
+1- Router registration only for viewsets as it have multiple methods inside it, so it need something like handler to handle hte URLs
+2- we aer using rest Framework router [simpleRouter - DefaulRouter] to handle it
+3 -Nested Router:
+3.1 Register the parent router
+3.2 
