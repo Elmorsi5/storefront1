@@ -134,7 +134,7 @@ class CollectionViewSet(ModelViewSet):
         return {'request':self.request}
     
     def destroy(self, request, *args, **kwargs):
-        collection = get_object_or_404(self.queryset, pk=id)
+        collection = get_object_or_404(self.queryset, pk=kwargs['pk'])
 
         if collection.products.count() > 0: # type: ignore
             return Response(

@@ -27,10 +27,15 @@
 
 #Building endpoint:
 ##serialize-> GET:
+Stps to build an API:
+- Create the serializer
+-Create the as_view
+-Register a route
 1- Create the serializer with the fields you want to return to the customer
 2- Take care of fields that didn't belong to the queryset that you will serializer.
 3- if fields did not belong to the queryset, the serializer will search for a defination to it inside the serializer class 
 3.1 - this field may be a column from a method or ........
 4. what .as_view() do? it tell djago to treat this class as function
+
 ##Deserialize:
 easy isa
