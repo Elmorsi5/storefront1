@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.mixins import CreateModelMixin, ListModelMixin
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import (
@@ -16,6 +17,10 @@ from django.db.models import Count
 
 
 # Create your views here.
+#1-Function Based
+#2-Class Based APIView 
+#3-mixins - generic APIViews
+#4-Viewset
 
 #1-Using [Function Based View] [manually handle http methods and manually write the functionsto : [list- create - update - Delete] ]
 @api_view(["GET", "POST"])
@@ -97,10 +102,13 @@ class ProductDetail(APIView):
 class CollectionList(ListCreateAPIView):
     queryset = Collection.objects.annotate(products_count=Count("products")).all()
     serializer_class = CollectionSerializers
+    
+    def get_serializer_context(self):
+        return {'request':self.request}
 
 
 class CollectionDetail(RetrieveUpdateDestroyAPIView):
-    queryset = Collection.objects.annotate(products_count=Count("products"))
+    queryset = Collection.objects.annotate(products_count=Count("products")).all()
     serializer_class = CollectionSerializers
 
     def delete(self,request,id):
@@ -117,9 +125,26 @@ class CollectionDetail(RetrieveUpdateDestroyAPIView):
             return Response(status.HTTP_404_NOT_FOUND)
 #-----------------------------------------------------
 
+#4- Using [ViewSets] [do all in one and override what you want to edit]
+class CollectionViewSet(ModelViewSet):
+    queryset = Collection.objects.annotate(products_count=Count("products")).all()
+    serializer_class = CollectionSerializers
+    
+    def get_serializer_context(self):
+        return {'request':self.request}
+    
+    def destroy(self, request, *args, **kwargs):
+        collection = get_object_or_404(self.queryset, pk=id)
 
+        if collection.products.count() > 0: # type: ignore
+            return Response(
+                {
+                    "error": "There are products related to this collectio, you can not delete it"
+                },
+                status.HTTP_405_METHOD_NOT_ALLOWED,
+            )
 
-
+        return super().destroy(request, *args, **kwargs)
 
 
 class OrderList(ListCreateAPIView):
@@ -134,5 +159,6 @@ class OrderDetail(RetrieveUpdateDestroyAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     lookup_field = 'id'
+
 
 
