@@ -3,8 +3,8 @@ from django.http import HttpResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import ProductSerializers, CollectionSerializers, CustomerSrializer
-from .models import Product, Collection, Customer
+from .serializers import OrderSerializer, ProductSerializers, CollectionSerializers, CustomerSrializer
+from .models import Product, Collection, Customer, Order
 from django.db.models import Count
 
 # Create your views here.
@@ -126,3 +126,11 @@ def customer_detail(request, id):
 
         customer.delete()
         return Response(status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET'])
+def order_list(request):
+    queryset = Order.objects.all()
+    if request.method == 'GET':
+        serializer = OrderSerializer(queryset, many = True)
+        return Response(serializer.data,status.HTTP_200_OK)
+        

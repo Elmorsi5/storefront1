@@ -36,10 +36,15 @@ class ProductSerializers(serializers.ModelSerializer): #What field of product ob
         return product.collection.title
 
 
+class OrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ['placed_at','payment_status','customer']
+
+
 class CustomerSrializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = ['first_name','last_name','email','phone','birth_date','membership','orders_count']
     orders_count = serializers.IntegerField()
-    
     

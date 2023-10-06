@@ -23,3 +23,14 @@
 5- API is the interface of our application, the remote control buttons, object model is the inside implement of our application as it can be changed or updated
 6- API endpoint [remote buttons] difficult to be changedm but the entire process can be
 7- we have 4 ways to serialize a relationship: [primary key - String - Nested Object - Hyperlink]
+
+
+#Building endpoint:
+##serialize-> GET:
+1- Create the serializer with the fields you want to return to the customer
+2- Take care of fields that didn't belong to the queryset that you will serializer.
+3- if fields did not belong to the queryset, the serializer will search for a defination to it inside the serializer class 
+3.1 - this field may be a column from a method or ........
+
+##Deserialize:
+easy isa
