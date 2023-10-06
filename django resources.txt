@@ -7,3 +7,7 @@ https://www.letscodemore.com/blog/categories/coding/django/
 
 #tools:
 - https://httpstatuses.io/
+
+
+#python:
+- search for anpy python package: https://pypi.org/
