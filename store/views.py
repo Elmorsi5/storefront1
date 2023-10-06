@@ -11,8 +11,9 @@ from .serializers import (
     ProductSerializers,
     CollectionSerializers,
     CustomerSrializer,
+    ReviewSerializer
 )
-from .models import Product, Collection, Customer, Order
+from .models import Product, Collection, Customer, Order, Review
 from django.db.models import Count
 
 
@@ -145,6 +146,12 @@ class CollectionViewSet(ModelViewSet):
             )
 
         return super().destroy(request, *args, **kwargs)
+
+
+class ReviewViewSet(ModelViewSet):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
 
 
 class OrderList(ListCreateAPIView):
