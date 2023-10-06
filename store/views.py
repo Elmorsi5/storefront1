@@ -6,6 +6,7 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework import serializers
 from .serializers import (
     OrderSerializer,
     ProductSerializers,
@@ -99,6 +100,27 @@ class ProductDetail(APIView):
             product.delete()
             return Response(status.HTTP_204_NO_CONTENT)
 
+
+class ReviewList(APIView):
+    class ReviewSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Review
+            fields = ['id','date','name','description']
+
+    def get(self,requeset):
+        queryset = Review.objects.all()
+        serializer = ReviewSerializer(queryset,many =True)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+    
+    def post(self,request):
+        serializer = ReviewSerializer(data = request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data,status=status.HTTP_201_CREATED)
+
+
+
+    
 # ----------------------------------------------------------------------------
 
 

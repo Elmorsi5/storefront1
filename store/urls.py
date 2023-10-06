@@ -28,6 +28,8 @@ urlpatterns = [
     path('collection/<int:pk>',views.CollectionDetail.as_view()), #<int:id> called converter
     path('orders/',views.OrderList.as_view()),
     path('order/<int:id>',views.OrderDetail.as_view()),
+    path('reviews_list/',views.ReviewList.as_view()),
+
     
     # ViewSets Router
     path(r'',include(router.urls)),# router.urls map the viewsets that regiserin in:
