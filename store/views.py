@@ -24,6 +24,7 @@ class ProductList(APIView):
     def post(self, request):
         serializer = ProductSerializers(data=request.data)
         serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data, status.HTTP_201_CREATED)
 
 
@@ -37,6 +38,7 @@ class ProductDetail(APIView):
         product = get_object_or_404(Product, pk=id)
         serializer = ProductSerializers(data=request.data)
         serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data, status.HTTP_200_OK)
 
     def delete(self, request, id):
