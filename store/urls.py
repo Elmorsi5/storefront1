@@ -7,10 +7,10 @@ from django.urls import include, path
 router = routers.DefaultRouter() 
 
 #step2 - [General Step] parent router register - Each view set have it's own register 
-router.register('products',views.ProductViewSet) # return --->[products-list]:products/ ,---> [products-detail]:products/<id>
+router.register('products',views.ProductViewSet,basename='products') # return ---> products-list:[products/] ,---> products-detail:[products/<id>]
 router.register('collection-viewset',views.CollectionViewSet) 
 router.register('reviews',views.ReviewViewSet,basename = 'reviews-list')
-router.register('customers',views.CustomerViewSet)
+router.register('customers',views.CustomerViewSet) #register the parent
 router.register('orders',views.OrderViewSet,basename='orders-list')
 
 # step 3:[Optional for building Nested Routers]
