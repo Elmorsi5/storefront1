@@ -1,18 +1,16 @@
 from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend, FilterSet
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.decorators import api_view
+from rest_framework.decorators import   api_view
 from rest_framework.views import APIView
-from rest_framework.mixins import CreateModelMixin, ListModelMixin
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import serializers
-from rest_framework.pagination import PageNumberPagination
 
-from store.filters import ProductFilter
-from store.pagination import ProductPagination
+from store.filters import CustomerFilter, ProductFilter
+from store.pagination import CustomerPagination, ProductPagination
 from .serializers import (
     OrderSerializer,
     ProductSerializers,
@@ -131,7 +129,7 @@ class ReviewList(APIView):
 # ----------------------------------------------------------------------------
 
 
-# 3-Using [GenericAPIView] [built in function do work,only provide unique(queryset-serializer_class -lookup_field) and Customize built in function if need]
+# 3-[GenericAPIView] [built in function do work,only provide unique(queryset-serializer_class -lookup_field) and Customize built in function if need]
 class CollectionList(ListCreateAPIView):
     queryset = Collection.objects.annotate(products_count=Count("products")).all()
     serializer_class = CollectionSerializers
@@ -159,10 +157,27 @@ class CollectionDetail(RetrieveUpdateDestroyAPIView):
             return Response(status.HTTP_404_NOT_FOUND)
 
 
+
+class OrderList(ListCreateAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+
+    #override get
+    def get(self, request):
+        queryset = Order.objects.all()
+        serializer = OrderSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class OrderDetail(RetrieveUpdateDestroyAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    lookup_field = "id"
+
 # ----------------------------------------------------------------------------
 
 
-# 4-Using [ViewSets] [do all in one and override what you want to edit]
+# 4-[ViewSets] [do all in one and override what you want to edit]
 class CollectionViewSet(ModelViewSet):
     queryset = Collection.objects.annotate(products_count=Count("products")).all()
     serializer_class = CollectionSerializers
@@ -195,7 +210,8 @@ class ReviewViewSet(ModelViewSet):
         return {"product_id": self.kwargs["product_pk"]}
 
 
-# Viewsets to make nested query:
+
+# Viewsets to make nested query: between [Product:parent, Reviews:child - Customer:parent,Orders:Child]
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all().select_related("collection")
     serializer_class = ProductSerializers
@@ -204,7 +220,7 @@ class ProductViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
 
     # User General Filters Ruels:
-    search_fields = ["title", "description"]
+    search_fields = ["title", "description"] # ?
     ordering_fields = ["unit_price", "last_update"]
     # filterset_fields = ['collection_id','unit_price'] # here genelral ruels is not suitable for a field like unit_price, so we will create a custom filter
 
@@ -250,6 +266,12 @@ class CustomerViewSet(ModelViewSet):
 
     queryset = Customer.objects.all()
     serializer_class = CustomerSrializer
+    pagination_class = CustomerPagination
+    filterset_class = CustomerFilter
+
+    filter_backends = [DjangoFilterBackend,OrderingFilter,SearchFilter]
+    search_fields = ['first_name']
+    ordering_fields = ['id']
 
 
 class OrderViewSet(ModelViewSet):
@@ -271,21 +293,5 @@ class OrderViewSet(ModelViewSet):
     def get_serializer_context(self):
         return {"customer_id": self.kwargs["customer_pk"]}
 
-
 # ----------------------------------------------------------------------------
 
-
-class OrderList(ListCreateAPIView):
-    queryset = Order.objects.all()
-    serializer_class = OrderSerializer
-
-    def get(self, request):
-        queryset = Order.objects.all()
-        serializer = OrderSerializer(queryset, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class OrderDetail(RetrieveUpdateDestroyAPIView):
-    queryset = Order.objects.all()
-    serializer_class = OrderSerializer
-    lookup_field = "id"
