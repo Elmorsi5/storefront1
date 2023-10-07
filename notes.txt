@@ -1,7 +1,8 @@
 #Models:
 1- You should differ between what is applied to the database[need to make new migration]- and what applay to the admin site only[no need to migrate]
 2- When building a generic model, don't make it interact with you main models or apps directly [store_cutom]
-
+3- Foreginkey is translated to Foreginkey_id in the database 
+3.1 Ex: Product has a Foreginkey field-> customer, it will be customer_id when dealing with this field in the database level, when ORM try to search for it
 
 
 #DBMS:
@@ -27,6 +28,8 @@
 
 #Building endpoint:
 ##serialize-> GET:
+IMPORTANT: we call the jsno--> pyload,
+serializer fields is what we want to recieve with what names, and it is not the same as our model, they are totally different in usage  
 Stps to build an API:
 - Create the serializer
 -Create the as_view
