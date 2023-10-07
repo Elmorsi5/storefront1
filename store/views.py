@@ -1,4 +1,6 @@
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend, FilterSet
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.mixins import CreateModelMixin, ListModelMixin
@@ -7,22 +9,27 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import serializers
+from rest_framework.pagination import PageNumberPagination
+
+from store.filters import ProductFilter
+from store.pagination import ProductPagination
 from .serializers import (
     OrderSerializer,
     ProductSerializers,
     CollectionSerializers,
     CustomerSrializer,
-    ReviewSerializer
+    ReviewSerializer,
 )
 from .models import Product, Collection, Customer, Order, Review
 from django.db.models import Count
 
 
 # Create your views here.
-#1-Function Based
-#2-Class Based APIView 
-#3-mixins - generic APIViews
-#4-Viewset
+# 1-Function Based
+# 2-Class Based APIView
+# 3-mixins - generic APIViews
+# 4-Viewset
+
 
 # 1- Using [Function Based View] [manually handle http methods and manually write the functionsto : [list- create - update - Delete] ]
 @api_view(["GET", "POST"])
@@ -60,7 +67,9 @@ def customer_detail(request, id):
         customer.delete()
         return Response(status.HTTP_204_NO_CONTENT)
 
+
 # ----------------------------------------------------------------------------
+
 
 # 2-Using [Class APIView] Class [no more of (if conditions) to handle http methods ]
 class ProductList(APIView):
@@ -105,22 +114,20 @@ class ReviewList(APIView):
     class ReviewSerializer(serializers.ModelSerializer):
         class Meta:
             model = Review
-            fields = ['id','date','name','description']
+            fields = ["id", "date", "name", "description"]
 
-    def get(self,requeset):
+    def get(self, requeset):
         queryset = Review.objects.all()
-        serializer = ReviewSerializer(queryset,many =True)
-        return Response(serializer.data,status=status.HTTP_200_OK)
-    
-    def post(self,request):
-        serializer = ReviewSerializer(data = request.data)
+        serializer = ReviewSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = ReviewSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-
-    
 # ----------------------------------------------------------------------------
 
 
@@ -128,17 +135,17 @@ class ReviewList(APIView):
 class CollectionList(ListCreateAPIView):
     queryset = Collection.objects.annotate(products_count=Count("products")).all()
     serializer_class = CollectionSerializers
-    
-    #We use it to provide the serializer with data that it need:
+
+    # We use it to provide the serializer with data that it need:
     def get_serializer_context(self):
-        return {'request':self.request}
+        return {"request": self.request}
 
 
 class CollectionDetail(RetrieveUpdateDestroyAPIView):
     queryset = Collection.objects.annotate(products_count=Count("products")).all()
     serializer_class = CollectionSerializers
 
-    def delete(self,request,id):
+    def delete(self, request, id):
         collection = get_object_or_404(self.queryset, pk=id)
         if collection.products.count() > 0:  # type: ignore
             return Response(
@@ -151,6 +158,7 @@ class CollectionDetail(RetrieveUpdateDestroyAPIView):
             collection.delete()
             return Response(status.HTTP_404_NOT_FOUND)
 
+
 # ----------------------------------------------------------------------------
 
 
@@ -158,14 +166,14 @@ class CollectionDetail(RetrieveUpdateDestroyAPIView):
 class CollectionViewSet(ModelViewSet):
     queryset = Collection.objects.annotate(products_count=Count("products")).all()
     serializer_class = CollectionSerializers
-    
-    def get_serializer_context(self):
-        return {'request':self.request}
-    
-    def destroy(self, request, *args, **kwargs):
-        collection = get_object_or_404(self.queryset, pk=kwargs['pk'])
 
-        if collection.products.count() > 0: # type: ignore
+    def get_serializer_context(self):
+        return {"request": self.request}
+
+    def destroy(self, request, *args, **kwargs):
+        collection = get_object_or_404(self.queryset, pk=kwargs["pk"])
+
+        if collection.products.count() > 0:  # type: ignore
             return Response(
                 {
                     "error": "There are products related to this collectio, you can not delete it"
@@ -179,20 +187,46 @@ class CollectionViewSet(ModelViewSet):
 class ReviewViewSet(ModelViewSet):
     # queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    
+
     def get_queryset(self):
-        return Review.objects.filter(product_id = self.kwargs['product_pk'])
+        return Review.objects.filter(product_id=self.kwargs["product_pk"])
 
     def get_serializer_context(self):
-        return {'product_id':self.kwargs['product_pk']}
+        return {"product_id": self.kwargs["product_pk"]}
 
 
+# Viewsets to make nested query:
 class ProductViewSet(ModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Product.objects.all().select_related("collection")
     serializer_class = ProductSerializers
+    pagination_class = ProductPagination
+    # Customer Generic Filter:
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+
+    # User General Filters Ruels:
+    search_fields = ["title", "description"]
+    ordering_fields = ["unit_price", "last_update"]
+    # filterset_fields = ['collection_id','unit_price'] # here genelral ruels is not suitable for a field like unit_price, so we will create a custom filter
+
+    # Customer filter
+    filterset_class = ProductFilter
+
+    # #Create a specific filter:
+    # def get_queryset(self):
+    #     queryset = Product.objects.all().select_related('collection')
+    #     # collectoin_id = self.request.query_params['collectoin_id']
+    #     collectoin_id = self.request.query_params.get('collectoin_id')
+
+    #     if collectoin_id is not None:
+    #         queryset = queryset.filter(collectoin_id = collectoin_id)
+
+    #     return queryset
+
+    def get_serializer_context(self):
+        return {"request": self.request}
 
     def destroy(self, request, *args, **kwargs):
-        product = get_object_or_404(Product, pk=kwargs['pk'])
+        product = get_object_or_404(Product, pk=kwargs["pk"])
         if self.product.orders.count() > 0:  # type: ignore
             return Response(
                 {"error": "you can't delete it as you have purhsed it"},
@@ -200,11 +234,19 @@ class ProductViewSet(ModelViewSet):
             )
         return super().destroy(request, *args, **kwargs)
 
+
 class CustomerViewSet(ModelViewSet):
     class CustomerSrializer(serializers.ModelSerializer):
         class Meta:
             model = Customer
-            fields = ['first_name','last_name','email','phone','birth_date','membership']
+            fields = [
+                "first_name",
+                "last_name",
+                "email",
+                "phone",
+                "birth_date",
+                "membership",
+            ]
 
     queryset = Customer.objects.all()
     serializer_class = CustomerSrializer
@@ -214,38 +256,36 @@ class OrderViewSet(ModelViewSet):
     class OrderSerializer(serializers.ModelSerializer):
         class Meta:
             model = Order
-            fields = ['id','placed_at','payment_status','customer']
-        
+            fields = ["id", "placed_at", "payment_status", "customer"]
+
         def create(self, validated_data):
-            customer_id = self.context['customer_id']
-            return Review.objects.create(product_id = customer_id,**validated_data)
-    
+            customer_id = self.context["customer_id"]
+            return Review.objects.create(product_id=customer_id, **validated_data)
+
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
 
     def get_queryset(self):
-        return Order.objects.filter(customer_id = self.kwargs['customer_pk'])
-    
+        return Order.objects.filter(customer_id=self.kwargs["customer_pk"])
+
     def get_serializer_context(self):
-        return {'customer_id':self.kwargs['customer_pk']}
+        return {"customer_id": self.kwargs["customer_pk"]}
 
 
 # ----------------------------------------------------------------------------
 
 
-
 class OrderList(ListCreateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    def get(self,request):
+
+    def get(self, request):
         queryset = Order.objects.all()
-        serializer = OrderSerializer(queryset,many = True)
-        return Response(serializer.data,status=status.HTTP_200_OK)
+        serializer = OrderSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class OrderDetail(RetrieveUpdateDestroyAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    lookup_field = 'id'
-
-
-
+    lookup_field = "id"

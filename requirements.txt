@@ -11,5 +11,6 @@ sqlparse==0.4.4
 tqdm==4.66.1
 typing_extensions==4.7.1
 virtualenv==20.24.4
-djangorestframework-3.14.0
+djangorestframework
 drf-nested-routers
+django-filter
