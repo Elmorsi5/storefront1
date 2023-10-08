@@ -12,6 +12,7 @@ router.register('collection-viewset',views.CollectionViewSet)
 router.register('reviews',views.ReviewViewSet,basename = 'reviews-list')
 router.register('customers',views.CustomerViewSet) #register the parent
 router.register('orders',views.OrderViewSet,basename='orders-list')
+router.register('carts',views.CartViewSet,basename = 'carts-list')
 
 # step 3:[Optional for building Nested Routers]
 #3.1:Select parent router and the prefix to it's prefix, which is here:router, 'products'
@@ -33,7 +34,6 @@ urlpatterns = [
     # path('order/<int:id>',views.OrderDetail.as_view()),
     # path('reviews_list/',views.ReviewList.as_view()),
 
-    
     # ViewSets Router
     path(r'',include(router.urls)),# router.urls map the viewsets that regiserin in:
     path(r'',include(products_router.urls)),
