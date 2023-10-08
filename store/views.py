@@ -4,21 +4,22 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.decorators import   api_view
 from rest_framework.views import APIView
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet,GenericViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import serializers
-
+from rest_framework.mixins import CreateModelMixin,ListModelMixin,RetrieveModelMixin
 from store.filters import CustomerFilter, ProductFilter
 from store.pagination import CustomerPagination, ProductPagination
 from .serializers import (
+    CartSerializer,
     OrderSerializer,
     ProductSerializers,
     CollectionSerializers,
     CustomerSrializer,
     ReviewSerializer,
 )
-from .models import Product, Collection, Customer, Order, Review
+from .models import Cart, Product, Collection, Customer, Order, Review
 from django.db.models import Count
 
 
@@ -295,3 +296,8 @@ class OrderViewSet(ModelViewSet):
 
 # ----------------------------------------------------------------------------
 
+# Implement an CartItem API;
+class CartViewSet(GenericViewSet,CreateModelMixin,ListModelMixin):
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
+    
