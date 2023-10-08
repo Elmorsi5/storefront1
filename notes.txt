@@ -50,3 +50,18 @@ easy isa
 3 -Nested Router:
 3.1 Register the parent router
 3.2 
+
+
+#Design and implement a shoping cart API:
+1- What is the operations? [method: , URL: , requeset: , response: ]
+
+  Cart:
+    - Create a cart [method:Post , URL:carts/ , requeset:{} , response:cart object ] 
+    - Get a cart   [method:GET , URL:carts/:id , requeset:{} , response:cart object ]
+    - Delete a cart [method:Delete , URL:carts/:id , requeset:{} , response:{} ]
+
+  items:
+    - Add items to the cart - [method:Post , URL:carts/:id/items , requeset:{product_id, quantity} , response:item ]
+    - Update the quantity of items [method:Patch , URL:carts/:id/items/:id , requeset:{quantity} , response:quantity ]
+    - Remove items from the cart Delete [method:Delete , URL:carts/:id/items/:id , requeset:{} , response: ]
+
