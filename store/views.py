@@ -8,10 +8,17 @@ from rest_framework.viewsets import ModelViewSet,GenericViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import serializers
-from rest_framework.mixins import CreateModelMixin,ListModelMixin,RetrieveModelMixin
+from rest_framework.mixins import (
+    CreateModelMixin,
+    ListModelMixin,
+    RetrieveModelMixin,
+    DestroyModelMixin,
+    UpdateModelMixin,
+    )
 from store.filters import CustomerFilter, ProductFilter
 from store.pagination import CustomerPagination, ProductPagination
 from .serializers import (
+    CartItemSerializer,
     CartSerializer,
     OrderSerializer,
     ProductSerializers,
@@ -19,15 +26,15 @@ from .serializers import (
     CustomerSrializer,
     ReviewSerializer,
 )
-from .models import Cart, Product, Collection, Customer, Order, Review
+from .models import Cart, CartItem, Product, Collection, Customer, Order, Review
 from django.db.models import Count
 
 
-# Create your views here.
-# 1-Function Based
-# 2-Class Based APIView
-# 3-mixins - generic APIViews
-# 4-Viewset
+# Create your views here:
+    # 1-Function Based
+    # 2-Class Based APIView
+    # 3-mixins - generic APIViews
+    # 4-Viewset
 
 
 # 1- Using [Function Based View] [manually handle http methods and manually write the functionsto : [list- create - update - Delete] ]
@@ -178,41 +185,9 @@ class OrderDetail(RetrieveUpdateDestroyAPIView):
 # ----------------------------------------------------------------------------
 
 
-# 4-[ViewSets] [do all in one and override what you want to edit]
-class CollectionViewSet(ModelViewSet):
-    queryset = Collection.objects.annotate(products_count=Count("products")).all()
-    serializer_class = CollectionSerializers
+# 4-[ViewSets]:-
 
-    def get_serializer_context(self):
-        return {"request": self.request}
-
-    def destroy(self, request, *args, **kwargs):
-        collection = get_object_or_404(self.queryset, pk=kwargs["pk"])
-
-        if collection.products.count() > 0:  # type: ignore
-            return Response(
-                {
-                    "error": "There are products related to this collectio, you can not delete it"
-                },
-                status.HTTP_405_METHOD_NOT_ALLOWED,
-            )
-
-        return super().destroy(request, *args, **kwargs)
-
-
-class ReviewViewSet(ModelViewSet):
-    # queryset = Review.objects.all()
-    serializer_class = ReviewSerializer
-
-    def get_queryset(self):
-        return Review.objects.filter(product_id=self.kwargs["product_pk"])
-
-    def get_serializer_context(self):
-        return {"product_id": self.kwargs["product_pk"]}
-
-
-
-# Viewsets to make nested query: between [Product:parent, Reviews:child - Customer:parent,Orders:Child]
+# Implement an [Product - Reviews] API:    Viewsets to make nested query: between [Product:parent, Reviews:child - Customer:parent,Orders:Child]
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all().select_related("collection")
     serializer_class = ProductSerializers
@@ -252,6 +227,18 @@ class ProductViewSet(ModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
 
+class ReviewViewSet(ModelViewSet):
+    # queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        return Review.objects.filter(product_id=self.kwargs["product_pk"])
+
+    def get_serializer_context(self):
+        return {"product_id": self.kwargs["product_pk"]}
+
+
+# Implement an [Customer - Order] API:
 class CustomerViewSet(ModelViewSet):
     class CustomerSrializer(serializers.ModelSerializer):
         class Meta:
@@ -294,10 +281,50 @@ class OrderViewSet(ModelViewSet):
     def get_serializer_context(self):
         return {"customer_id": self.kwargs["customer_pk"]}
 
-# ----------------------------------------------------------------------------
 
-# Implement an CartItem API;
-class CartViewSet(GenericViewSet,CreateModelMixin,ListModelMixin):
+# Implement an [Cart - CartItem] API:
+class CartViewSet(GenericViewSet,CreateModelMixin,ListModelMixin,RetrieveModelMixin,DestroyModelMixin):#no_update
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
-    
+   
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response({"Message":"This item has been successfully deleted"},status=status.HTTP_204_NO_CONTENT)
+ 
+    def perform_destroy(self, instance):
+        instance.delete()
+
+
+class CartItemViewSet(ModelViewSet):
+    queryset = CartItem.objects.all()
+    serializer_class = CartItemSerializer
+
+    #Get Cartitems of specific cart by cart_pk parameter in the url:
+    def get_queryset(self):
+        return CartItem.objects.filter(cart_id=self.kwargs["cart_pk"])
+
+    def get_serializer_context(self):
+        return {"cart_id": self.kwargs["cart_pk"]}
+
+#----------
+
+class CollectionViewSet(ModelViewSet):
+    queryset = Collection.objects.annotate(products_count=Count("products")).all()
+    serializer_class = CollectionSerializers
+
+    def get_serializer_context(self):
+        return {"request": self.request}
+
+    def destroy(self, request, *args, **kwargs):
+        collection = get_object_or_404(self.queryset, pk=kwargs["pk"])
+
+        if collection.products.count() > 0:  # type: ignore
+            return Response(
+                {
+                    "error": "There are products related to this collectio, you can not delete it"
+                },
+                status.HTTP_405_METHOD_NOT_ALLOWED,
+            )
+
+        return super().destroy(request, *args, **kwargs)
