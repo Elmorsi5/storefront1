@@ -1,6 +1,6 @@
+from uuid import uuid4
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
-from uuid import uuid4
 
 class Promotion(models.Model):
     description = models.CharField(max_length=255)
@@ -14,7 +14,7 @@ class Collection(models.Model):
     )  # This '+' tells django not to make a reverse relationship
 
     def __str__(self) -> str:
-        return self.title
+        return str(self.title)
 
     class Meta:
         ordering = ["title"]
@@ -103,8 +103,8 @@ class Cart(models.Model):
 
 
 class CartItem(models.Model):
-    cart = models.ForeignKey("Cart", on_delete=models.CASCADE)
-    product = models.ForeignKey("Product", on_delete=models.CASCADE, related_name='items')
+    cart = models.ForeignKey("Cart", on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey("Product", on_delete=models.CASCADE)
     quantity = models.PositiveSmallIntegerField()
 
     def __str__(self) -> str:
