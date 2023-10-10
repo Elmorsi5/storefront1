@@ -81,20 +81,33 @@ class ReviewSerializer(serializers.ModelSerializer):
         product_id = self.context["product_id"]
         return Review.objects.create(product_id=product_id, **validated_data)
 
-
-class CartSerializer(serializers.ModelSerializer):
-    id = serializers.UUIDField(read_only=True)  # not include in the Post or update
-
+class SimpleProductSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Cart
-        fields = ["id"]  # select what you need in the get pyload
-
-
+        model = Product
+        fields = ['id','title','unit_price']
+    
 class CartItemSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(read_only=True)
-    cart = serializers.UUIDField(read_only=True)
-
-    # product = serializers.IntegerField(read_only = True)
+    product = SimpleProductSerializer()
+    total_price = serializers.SerializerMethodField(method_name="get_total_price")
+    
+    def get_total_price(self,cartitem:CartItem):
+        return cartitem.quantity * cartitem.product.unit_price
     class Meta:
         model = CartItem
-        fields = ["id", "cart", "product", "quantity"]
+        fields = ['id','product','quantity','total_price']
+    
+
+class CartSerializer(serializers.ModelSerializer):
+    items = CartItemSerializer(many = True)
+    total_salary = serializers.SerializerMethodField()
+
+    def get_total_salary(self,cart:Cart):
+       return  sum([item.quantity * item.product.unit_price for item in cart.items.all()])
+
+
+    id = serializers.UUIDField(read_only=True)  # not include in the Post or update
+    class Meta:
+        model = Cart
+        fields = ["id",'items','total_salary']  # select what you need in the get pyload
+
+

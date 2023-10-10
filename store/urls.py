@@ -10,7 +10,7 @@ router.register("reviews", views.ReviewViewSet, basename="reviews")
 router.register("customers", views.CustomerViewSet)
 router.register("orders", views.OrderViewSet, basename="orders")
 router.register("carts", views.CartViewSet, basename="carts")
-router.register("cart_items", views.CartItemViewSet, basename="cart_items")
+# router.register("cart_items", views.CartItemViewSet, basename="cart_items")
 router.register("collection-viewset", views.CollectionViewSet)
 
 # 1-For building Nested Routers:
@@ -24,7 +24,7 @@ products_router.register("reviews", views.ReviewViewSet, basename="product-revie
 # [Customer has orders]
 customers_router.register("orders", views.OrderViewSet, basename="customer-orders")
 # [Carts iclude orders]
-carts_router.register("cart_items", views.CartItemViewSet, basename="cart-cartitems")
+# carts_router.register("cart_items", views.CartItemViewSet, basename="cart-cartitems")
 
 
 urlpatterns = [

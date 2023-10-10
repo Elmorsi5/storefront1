@@ -283,7 +283,7 @@ class OrderViewSet(ModelViewSet):
 
 
 # Implement an [Cart - CartItem] API:
-class CartViewSet(GenericViewSet,CreateModelMixin,ListModelMixin,RetrieveModelMixin,DestroyModelMixin):#no_update
+class CartViewSet(GenericViewSet,CreateModelMixin,RetrieveModelMixin,DestroyModelMixin):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
    
@@ -296,16 +296,7 @@ class CartViewSet(GenericViewSet,CreateModelMixin,ListModelMixin,RetrieveModelMi
         instance.delete()
 
 
-class CartItemViewSet(ModelViewSet):
-    queryset = CartItem.objects.all()
-    serializer_class = CartItemSerializer
 
-    #Get Cartitems of specific cart by cart_pk parameter in the url:
-    def get_queryset(self):
-        return CartItem.objects.filter(cart_id=self.kwargs["cart_pk"])
-
-    def get_serializer_context(self):
-        return {"cart_id": self.kwargs["cart_pk"]}
 
 #----------
 
