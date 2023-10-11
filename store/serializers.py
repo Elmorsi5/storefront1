@@ -88,7 +88,7 @@ class SimpleProductSerializer(serializers.ModelSerializer):
     
 class CartItemSerializer(serializers.ModelSerializer):
     product = SimpleProductSerializer()
-    total_price = serializers.SerializerMethodField(method_name="get_total_price")
+    total_price = serializers.SerializerMethodField(method_name="get_total_price",read_only = True)
     
     def get_total_price(self,cartitem:CartItem):
         return cartitem.quantity * cartitem.product.unit_price
@@ -98,11 +98,11 @@ class CartItemSerializer(serializers.ModelSerializer):
     
 
 class CartSerializer(serializers.ModelSerializer):
-    items = CartItemSerializer(many = True)
+    items = CartItemSerializer(many = True, read_only = True)
     total_salary = serializers.SerializerMethodField()
 
     def get_total_salary(self,cart:Cart):
-       return  sum([item.quantity * item.product.unit_price for item in cart.items.all()])
+       return  sum([item.quantity * item.product.unit_price for item in cart.items.all()]) # type: ignore
 
 
     id = serializers.UUIDField(read_only=True)  # not include in the Post or update

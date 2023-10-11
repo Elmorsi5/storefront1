@@ -1,10 +1,10 @@
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.decorators import   api_view
+from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.viewsets import ModelViewSet,GenericViewSet
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import serializers
@@ -14,7 +14,7 @@ from rest_framework.mixins import (
     RetrieveModelMixin,
     DestroyModelMixin,
     UpdateModelMixin,
-    )
+)
 from store.filters import CustomerFilter, ProductFilter
 from store.pagination import CustomerPagination, ProductPagination
 from .serializers import (
@@ -31,17 +31,18 @@ from django.db.models import Count
 
 
 # Create your views here:
-    # 1-Function Based
-    # 2-Class Based APIView
-    # 3-mixins - generic APIViews
-    # 4-Viewset
+# 1-Function Based
+# 2-Class Based APIView
+# 3-mixins - generic APIViews
+# 4-Viewset
 
 
 # 1- Using [Function Based View] [manually handle http methods and manually write the functionsto : [list- create - update - Delete] ]
 @api_view(["GET", "POST"])
 def customer_list(request):
     if request.method == "GET":
-        queryset = Customer.objects.annotate(orders_count=Count("orders")).all()
+        queryset = Customer.objects.annotate(
+            orders_count=Count("orders")).all()
         serializer = CustomerSrializer(queryset, many=True)
         return Response(serializer.data, status.HTTP_200_OK)
     elif request.method == "POST":
@@ -139,7 +140,8 @@ class ReviewList(APIView):
 
 # 3-[GenericAPIView] [built in function do work,only provide unique(queryset-serializer_class -lookup_field) and Customize built in function if need]
 class CollectionList(ListCreateAPIView):
-    queryset = Collection.objects.annotate(products_count=Count("products")).all()
+    queryset = Collection.objects.annotate(
+        products_count=Count("products")).all()
     serializer_class = CollectionSerializers
 
     # We use it to provide the serializer with data that it need:
@@ -148,7 +150,8 @@ class CollectionList(ListCreateAPIView):
 
 
 class CollectionDetail(RetrieveUpdateDestroyAPIView):
-    queryset = Collection.objects.annotate(products_count=Count("products")).all()
+    queryset = Collection.objects.annotate(
+        products_count=Count("products")).all()
     serializer_class = CollectionSerializers
 
     def delete(self, request, id):
@@ -165,12 +168,11 @@ class CollectionDetail(RetrieveUpdateDestroyAPIView):
             return Response(status.HTTP_404_NOT_FOUND)
 
 
-
 class OrderList(ListCreateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
 
-    #override get
+    # override get
     def get(self, request):
         queryset = Order.objects.all()
         serializer = OrderSerializer(queryset, many=True)
@@ -196,7 +198,7 @@ class ProductViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
 
     # User General Filters Ruels:
-    search_fields = ["title", "description"] # ?
+    search_fields = ["title", "description"]  # ?
     ordering_fields = ["unit_price", "last_update"]
     # filterset_fields = ['collection_id','unit_price'] # here genelral ruels is not suitable for a field like unit_price, so we will create a custom filter
 
@@ -257,7 +259,7 @@ class CustomerViewSet(ModelViewSet):
     pagination_class = CustomerPagination
     filterset_class = CustomerFilter
 
-    filter_backends = [DjangoFilterBackend,OrderingFilter,SearchFilter]
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     search_fields = ['first_name']
     ordering_fields = ['id']
 
@@ -283,25 +285,34 @@ class OrderViewSet(ModelViewSet):
 
 
 # Implement an [Cart - CartItem] API:
-class CartViewSet(GenericViewSet,CreateModelMixin,RetrieveModelMixin,DestroyModelMixin):
+class CartViewSet(GenericViewSet,
+                  CreateModelMixin,
+                  RetrieveModelMixin,
+                  DestroyModelMixin):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
-   
+
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
-        return Response({"Message":"This item has been successfully deleted"},status=status.HTTP_204_NO_CONTENT)
- 
+        return Response({"Message": "This item has been successfully deleted"}, status=status.HTTP_204_NO_CONTENT)
+
     def perform_destroy(self, instance):
         instance.delete()
 
+class CartItemViewSet(ModelViewSet):
+    # queryset = CartItem.objects.all() # we don't want to retrieve all cart items we only retrieve items of the cart we get into
+    serializer_class = CartItemSerializer
 
-
-
-#----------
+    def get_queryset(self):
+        return CartItem.objects\
+            .filter(cart_id = self.kwargs['cart_pk'])\
+            .select_related('product')
+# ----------
 
 class CollectionViewSet(ModelViewSet):
-    queryset = Collection.objects.annotate(products_count=Count("products")).all()
+    queryset = Collection.objects.annotate(
+        products_count=Count("products")).all()
     serializer_class = CollectionSerializers
 
     def get_serializer_context(self):
