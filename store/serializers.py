@@ -97,6 +97,19 @@ class CartItemSerializer(serializers.ModelSerializer):
         fields = ['id','product','quantity','total_price']
     
 
+class AddCartItemSerializer(serializers.ModelSerializer):
+    product_id = serializers.IntegerField()
+    class Meta:
+        model = CartItem
+        fields = ['id','product_id','quantity']
+    
+    def save(self, **kwargs):
+        cart_id =self.context['cart_id']
+        product_id =self.validated_data['product_id'] 
+        quantity = self.validated_data['quantity']
+
+        return super().save(**kwargs)
+
 class CartSerializer(serializers.ModelSerializer):
     items = CartItemSerializer(many = True, read_only = True)
     total_salary = serializers.SerializerMethodField()
