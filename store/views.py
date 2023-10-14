@@ -316,7 +316,7 @@ class CartItemViewSet(ModelViewSet):
             .select_related('product')
     
     def get_serializer_context(self):
-        return {"cart_is":self.kwargs['cart_pk']}
+        return {"cart_id":self.kwargs['cart_pk']}
 # ----------
 
 class CollectionViewSet(ModelViewSet):
