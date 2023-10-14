@@ -26,6 +26,7 @@ from .serializers import (
     CollectionSerializers,
     CustomerSrializer,
     ReviewSerializer,
+    UpdateCartItemSerializer,
 )
 from .models import Cart, CartItem, Product, Collection, Customer, Order, Review
 from django.db.models import Count
@@ -304,10 +305,12 @@ class CartViewSet(GenericViewSet,
 class CartItemViewSet(ModelViewSet):
     # queryset = CartItem.objects.all() # we don't want to retrieve all cart items we only retrieve items of the cart we get into
     # serializer_class = CartItemSerializer
+    http_method_names = ['get','post','patch','delete']
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return AddCartItemSerializer
-        
+        elif self.request.method == 'PATCH':
+            return UpdateCartItemSerializer
         return CartItemSerializer
 
     def get_queryset(self):
