@@ -45,8 +45,11 @@ INSTALLED_APPS = [
     'store',
     'tags',
     'likes',
-    'store_custom'
+    'core'
 ]
+
+AUTH_USER_MODEL = 'core.User'
+
 SITE_ID = 1
 MIDDLEWARE = [
     "debug_toolbar.middleware.DebugToolbarMiddleware",
