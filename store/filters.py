@@ -13,6 +13,6 @@ class CustomerFilter(FilterSet):
     class Meta:
         model = Customer
         fields = {
-            'email':['exact'],
+            'user__email':['exact'],
             'phone':['exact']
         }
