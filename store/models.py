@@ -87,7 +87,10 @@ class Order(models.Model):
     customer = models.ForeignKey(
         Customer, on_delete=models.PROTECT, related_name="orders")
 
-
+    class Meta:
+        permissions =[
+            ('cancel_order','Can Cancel order')
+        ]
 class Address(models.Model):
     street = models.CharField(max_length=255)
     city = models.CharField(max_length=255)
